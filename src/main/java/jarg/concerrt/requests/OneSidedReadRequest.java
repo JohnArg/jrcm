@@ -26,8 +26,6 @@ public class OneSidedReadRequest extends SendRequest implements Preparable {
         sendWR.setOpcode(IbvSendWR.IBV_WR_RDMA_READ);
         sendWR.setSend_flags(IbvSendWR.IBV_SEND_SIGNALED);
         // details about the data buffer that will receive the data
-        requestSge.setAddr(requestBufferMR.getAddr());
-        requestSge.setLength(requestBufferMR.getLength());
         requestSge.setLkey(requestBufferMR.getLkey());
         // remote memory location details
         // read data from the remote address with these details

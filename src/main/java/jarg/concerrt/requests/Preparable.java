@@ -7,7 +7,7 @@ package jarg.concerrt.requests;
 public interface Preparable {
     /**
      * Prepare a Work Request before sending it to the Network
-     * Card.
+     * Card for execution.
      */
     void prepareRequest();
 }

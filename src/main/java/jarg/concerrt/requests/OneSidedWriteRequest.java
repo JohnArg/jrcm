@@ -26,8 +26,6 @@ public class OneSidedWriteRequest extends SendRequest implements Preparable {
         sendWR.setOpcode(IbvSendWR.IBV_WR_RDMA_WRITE);
         sendWR.setSend_flags(IbvSendWR.IBV_SEND_SIGNALED);
         // details about the data buffer to be sent to the remote side
-        requestSge.setAddr(requestBufferMR.getAddr());
-        requestSge.setLength(requestBufferMR.getLength());
         requestSge.setLkey(requestBufferMR.getLkey());
         // remote memory location details
         // write data to the remote address with these details

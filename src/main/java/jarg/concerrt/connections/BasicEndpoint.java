@@ -5,12 +5,12 @@ import com.ibm.disni.RdmaEndpointGroup;
 import com.ibm.disni.verbs.IbvMr;
 import com.ibm.disni.verbs.RdmaCmId;
 import it.unimi.dsi.fastutil.ints.IntArrayFIFOQueue;
+import jarg.concerrt.requests.*;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 public class BasicEndpoint extends RdmaEndpoint {
     int maxWRs;                                 // max Work Requests supported
@@ -20,15 +20,22 @@ public class BasicEndpoint extends RdmaEndpoint {
     IbvMr rdmaEndpointMemoryRegion;             // the above block's memory region
     CompletionHandler[] workRequestHandlers;    // will handle Work Completion events
     IntArrayFIFOQueue freeWrIds;                // available Work Request ids
-    private Byte blockingMonitor;               // will be used to implement
+    Byte blockingMonitor;                       // will be used to implement
                                                 // blocking when necessary
     Map<ByteBuffer, Long> bufferMemoryAddressesMap; // <buffers, memory addresses>
+    // Supported operations ------------------------------------------------------
+    int supportedOperationsFlag;               // which WorkRequestTypes will be used
+    TwoSidedSendRequest twoSidedSendRequest;
+    TwoSidedRecv twoSidedRecv;
+    OneSidedWriteRequest oneSidedWriteRequest;
+    OneSidedReadRequest oneSidedReadRequest;
 
 
-    protected BasicEndpoint(RdmaEndpointGroup<? extends BasicEndpoint> group,
+    public BasicEndpoint(RdmaEndpointGroup<? extends BasicEndpoint> group,
                             RdmaCmId idPriv, boolean serverSide,
-                            int maxBufferSize, int maxWRs)
+                            int maxBufferSize, int maxWRs, int supportedOperationsFlag)
                             throws IOException {
+
         super(group, idPriv, serverSide);
 
         this.maxWRs = maxWRs;
@@ -36,7 +43,12 @@ public class BasicEndpoint extends RdmaEndpoint {
         communicationBuffers = new ByteBuffer[maxWRs];
         workRequestHandlers = new CompletionHandler[maxWRs];
         freeWrIds = new IntArrayFIFOQueue(maxWRs);
+        blockingMonitor = 0;
         bufferMemoryAddressesMap = new HashMap<ByteBuffer, Long>();
+        this.supportedOperationsFlag = supportedOperationsFlag;
+
+        // prepare objects for the supported operations
+        enableSupportedOperations(supportedOperationsFlag);
     }
 
     /* *************************************************************
@@ -75,7 +87,7 @@ public class BasicEndpoint extends RdmaEndpoint {
     }
 
     /* *************************************************************
-     * Extra Methods
+     * Manage Work Request Ids
      * *************************************************************/
 
     /**
@@ -124,8 +136,9 @@ public class BasicEndpoint extends RdmaEndpoint {
             wrId = freeWrIds.dequeueInt();
         }
         // if a WR id was available
+        ByteBuffer buffer;
         if(wrId > -1){
-            ByteBuffer buffer = communicationBuffers[wrId];
+            buffer = communicationBuffers[wrId];
             data = new WorkRequestData(wrId, buffer);
         }
         return data;
@@ -148,6 +161,85 @@ public class BasicEndpoint extends RdmaEndpoint {
     }
 
     /* *************************************************************
+     * Manage Work Requests that are sent to the Network Card
+     * *************************************************************/
+
+    /**
+     * Define which operations should the endpoint support. If this is
+     * used during runtime, it can only enable the support for new
+     * operations. It won't remove support for already supported
+     * operations.
+     *
+     * @param supportedOperationsFlag bit flag that should have the bits set
+     *                                according to the {@link WorkRequestTypes
+     *                                WorkRequestTypes} class.
+     */
+    public void enableSupportedOperations(int supportedOperationsFlag) {
+        if((supportedOperationsFlag & 0b1) == 1 ){
+            if(twoSidedSendRequest == null){
+                twoSidedSendRequest = new TwoSidedSendRequest(rdmaEndpointMemoryRegion);
+            }
+        }
+        if((supportedOperationsFlag & 0b10) == 1 ){
+            if(twoSidedRecv == null){
+                twoSidedRecv = new TwoSidedRecv(rdmaEndpointMemoryRegion);
+            }
+        }
+        if((supportedOperationsFlag & 0b100) == 1 ){
+            if(oneSidedWriteRequest == null){
+                oneSidedWriteRequest = new OneSidedWriteRequest(rdmaEndpointMemoryRegion);
+            }
+        }
+        if((supportedOperationsFlag & 0b1000) == 1 ){
+            if(oneSidedReadRequest == null){
+                oneSidedReadRequest = new OneSidedReadRequest(rdmaEndpointMemoryRegion);
+            }
+        }
+    }
+
+    /**
+     * Associate a {@link CompletionHandler} with a Work Request. Once a
+     * Work Completion event is dispatched for this Work Request, the
+     * corresponding handler can be called to react to the event.
+     * @param workRequestId
+     * @param handler
+     */
+    public void registerWrHandler(int workRequestId, CompletionHandler handler){
+        workRequestHandlers[workRequestId] = handler;
+    }
+
+
+    /**
+     * Post a 'send' RDMA Work Request (WR) to the NIC. A 'send' request can be a
+     * <i>two-sided send</i>, a <i>one-sided write</i> or a <i>one-sided read</i> operation.
+     * @param workRequestId the id of that the WR will have
+     * @param dataLength the length of the data to be transmitted or read. Should not exceed
+     *                   the maximum size of communications buffers.
+     * @param workRequestType which of the 3 possible operations to use
+     * @throws UnsupportedOperationException should throw this if the caller wants to
+     * post a <i>two-sided recv</i> with this function.
+     */
+    public void send(int workRequestId, int dataLength, int workRequestType)
+            throws UnsupportedOperationException{
+        // Todo
+    }
+
+    /**
+     * Post a 'receive' RDMA Work Request (WR) to the NIC. This is only used for
+     * <i>two-sided recv</i> RDMA operations, which need to be posted in order to
+     * receive messages sent with <i>two-sided send</i>. A posted <i>two-sided recv</i>
+     * allows receiving a single message, so this function must be called every time
+     * a message with <i>two-sided send</i> is expected.
+     * @param workRequestId the id of that the WR will have
+     * @param dataLength the length in bytes, of the data that will be received.
+     *                   Should not exceed the maximum size of communications buffers.
+     */
+    public void recv(int workRequestId, int dataLength){
+        // Todo
+    }
+
+
+    /* *************************************************************
      * Getters
      * *************************************************************/
 
@@ -161,5 +253,9 @@ public class BasicEndpoint extends RdmaEndpoint {
 
     public CompletionHandler[] getWorkRequestHandlers() {
         return workRequestHandlers;
+    }
+
+    public ByteBuffer getCommunicationsBuffer(int workRequestId){
+        return communicationBuffers[workRequestId];
     }
 }
