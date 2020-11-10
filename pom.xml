@@ -21,6 +21,11 @@
             <artifactId>disni</artifactId>
             <version>${disni.version}</version>
         </dependency>
+        <dependency>
+            <groupId>it.unimi.dsi</groupId>
+            <artifactId>fastutil</artifactId>
+            <version>8.4.3</version>
+        </dependency>
     </dependencies>
 
     <!-- Build ======================================== -->
