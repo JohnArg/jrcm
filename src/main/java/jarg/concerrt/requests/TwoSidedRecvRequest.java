@@ -2,12 +2,13 @@ package jarg.concerrt.requests;
 
 import com.ibm.disni.verbs.IbvMr;
 import com.ibm.disni.verbs.IbvRecvWR;
+import com.ibm.disni.verbs.IbvSendWR;
 
-public class TwoSidedRecv extends BasicWorkRequest implements Preparable{
+public class TwoSidedRecvRequest extends BasicWorkRequest implements Preparable{
     private IbvRecvWR recvWR;
 
 
-    public TwoSidedRecv(IbvMr memoryRegion){
+    public TwoSidedRecvRequest(IbvMr memoryRegion){
         super(memoryRegion);
         // attach scatter/gather list to the work request
         recvWR.setSg_list(sgeList);
@@ -23,13 +24,19 @@ public class TwoSidedRecv extends BasicWorkRequest implements Preparable{
     }
 
     @Override
-    public void setBufferMemoryAddress(long address) {
-        requestSge.setAddr(address);
-    }
+    public void setBufferMemoryAddress(long address) { requestSge.setAddr(address); }
 
     @Override
     public void prepareRequest() {
         // details about the data buffer that will hold the data
         requestSge.setLkey(requestBufferMR.getLkey());
+    }
+
+    /* *************************************************************
+     * Getters
+     * *************************************************************/
+
+    public IbvRecvWR getRecvWR() {
+        return recvWR;
     }
 }

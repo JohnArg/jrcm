@@ -3,10 +3,7 @@ package jarg.concerrt.requests;
 import com.ibm.disni.verbs.IbvMr;
 import com.ibm.disni.verbs.IbvSge;
 
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Abstract class defining an RDMA Work Request (WR), that will be
