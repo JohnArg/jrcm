@@ -1,20 +1,19 @@
 package jarg.concerrt.connections;
 
-import com.ibm.disni.RdmaEndpoint;
-import com.ibm.disni.RdmaEndpointGroup;
+import com.ibm.disni.RdmaActiveEndpoint;
+import com.ibm.disni.RdmaActiveEndpointGroup;
 import com.ibm.disni.verbs.*;
 import it.unimi.dsi.fastutil.ints.IntArrayFIFOQueue;
 import jarg.concerrt.requests.*;
 
 import java.io.IOException;
-import java.net.UnknownServiceException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class BasicEndpoint extends RdmaEndpoint {
+public class ConceRRTEndpoint extends RdmaActiveEndpoint {
     /*
     Note :
     Two types of RDMA requests can be posted to the Network Card :
@@ -41,7 +40,7 @@ public class BasicEndpoint extends RdmaEndpoint {
     Map<ByteBuffer, Long> sendBufferAddressesMap; // <send buffers, memory addresses>
     Map<ByteBuffer, Long> recvBufferAddressesMap; // <recv buffers, memory addresses>
     // Supported operations ------------------------------------------------------
-    int supportedOperationsFlag;               // which WorkRequestTypes will be used
+    int supportedOperationsFlag;                // which WorkRequestTypes will be used
     // Keep stored SVCs (Stateful Verb Calls => see jVerbs from IBM) for each request type here.
     // These SVCs can be reused when posting Work Requests to the NIC. This is faster
     // than creating new ones everytime.
@@ -50,10 +49,10 @@ public class BasicEndpoint extends RdmaEndpoint {
     SVCPostSend[] oneSidedReadSVCs;
     SVCPostRecv[] twoSidedRecvSVCs;
     // Used for synchronization when necessary -----------------------------------
-    Byte sendBlockingMonitor;                       // will be used to implement
+    Byte sendBlockingMonitor;
     Byte recvBlockingMonitor;
 
-    public BasicEndpoint(RdmaEndpointGroup<? extends BasicEndpoint> group,
+    public ConceRRTEndpoint(RdmaActiveEndpointGroup<? extends ConceRRTEndpoint> group,
                             RdmaCmId idPriv, boolean serverSide,
                             int maxBufferSize, int maxWRs, int supportedOperationsFlag)
                             throws IOException {
@@ -152,6 +151,24 @@ public class BasicEndpoint extends RdmaEndpoint {
         // Register the large allocated memory to the Network Card too
         rdmaEndpointMemoryRegion = registerMemory(rdmaEndpointMemoryBuffer)
                                     .execute().free().getMr();
+    }
+
+    @Override
+    public void dispatchCqEvent(IbvWC wc) throws IOException {
+        // Compare to opcodes from com.ibm.disni.verbs.IbvWC.IbvWcOpcode
+        // Then call the appropriate handlers for the events and free the Work Request id for reuse
+        int workRequestId = (int) wc.getWr_id();
+        // Completion for 'receive' operation
+        if(wc.getOpcode() == 128){
+            recvWorkCompletionHandlers[workRequestId].handleCompletionEvent(wc);
+            freeUpWrID(workRequestId, PostedRequestType.RECEIVE);
+        }
+        // Completion for 'send' operation
+        else if((wc.getOpcode() == 0) || (wc.getOpcode() == 1) ||
+                (wc.getOpcode() == 2)) {
+            sendWorkCompletionHandlers[workRequestId].handleCompletionEvent(wc);
+            freeUpWrID(workRequestId, PostedRequestType.SEND);
+        }
     }
 
     @Override
@@ -455,7 +472,6 @@ public class BasicEndpoint extends RdmaEndpoint {
         recvWorkCompletionHandlers[workRequestId] = completionHandler;
         twoSidedRecvSVCs[workRequestId].execute();
     }
-
 
     /* *************************************************************
      * Getters
