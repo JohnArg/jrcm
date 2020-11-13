@@ -1,22 +1,23 @@
-package jarg.examples.messaging;
+package jarg.examples.messaging.two_sided;
 
 import com.ibm.disni.RdmaActiveEndpointGroup;
 import com.ibm.disni.RdmaServerEndpoint;
 import jarg.concerrt.connections.ConceRRTEndpoint;
-import jarg.concerrt.connections.ConceRRTEndpointFactory;
-import jarg.concerrt.connections.WorkRequestData;
-import jarg.concerrt.requests.WorkRequestTypes;
+import jarg.concerrt.connections.WorkCompletionHandler;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.List;
 
 public class TwoSidedServer {
 
     private String serverHost;
     private String serverPort;
     private RdmaActiveEndpointGroup<ConceRRTEndpoint> endpointGroup;
-    private ConceRRTEndpointFactory factory;
+    private ServerEndpointFactory factory;
     private RdmaServerEndpoint<ConceRRTEndpoint> serverEndpoint;
+    private WorkCompletionHandler completionHandler;
+    private List<ConceRRTEndpoint> clients;
 
     public TwoSidedServer(String host, String port){
         this.serverHost = host;
@@ -35,8 +36,7 @@ public class TwoSidedServer {
         // Create endpoint
         endpointGroup = new RdmaActiveEndpointGroup<>(timeout, polling,
                 maxWRs, maxSge, cqSize);
-        factory = new ConceRRTEndpointFactory(endpointGroup, maxBufferSize, maxWRs,
-                WorkRequestTypes.TWO_SIDED_SIGNALED);
+        factory = new ServerEndpointFactory(endpointGroup, maxBufferSize, maxWRs);
         endpointGroup.init(factory);
         serverEndpoint = endpointGroup.createServerEndpoint();
 
@@ -51,30 +51,29 @@ public class TwoSidedServer {
 
     public void operate() throws Exception {
 
-        // accept client connection
-        ConceRRTEndpoint clientEndpoint = serverEndpoint.accept();
-        // prepare for two sided operations on that endpoint
+        while(true){
+            // accept client connection
+            ConceRRTEndpoint clientEndpoint = serverEndpoint.accept();
+            clients.add(clientEndpoint);
 
-//
-//        System.out.println("Client connection accepted. Client : "
-//                + clientEndpoint.getDstAddr().toString());
-//
-//        // get response
-//        String message = clientEndpoint.getTextMessage();
-//        if(message == null){
-//            System.out.println("Error in getting message");
-//        }else{
-//            System.out.println(message);
-//        }
-//
-//        // send message
-//        clientEndpoint.sendTextMessage("Hello back!");
+            System.out.println("Client connection accepted. Client : "
+                    + clientEndpoint.getDstAddr().toString());
+        }
 
 
-        //close endpoint/group
-        clientEndpoint.close();
-        serverEndpoint.close();
-        endpointGroup.close();
+    }
 
+    public void finalize(){
+        //Cleanup -------------------------------------------
+        try {
+            for (ConceRRTEndpoint clientEndpoint : clients) {
+                clientEndpoint.close();
+            }
+            serverEndpoint.close();
+            endpointGroup.close();
+            System.out.println("Server is shut down");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }
