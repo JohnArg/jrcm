@@ -1,4 +1,4 @@
-package jarg.examples.messaging.two_sided;
+package jarg.concerrt.examples.messaging.twosided;
 
 import com.ibm.disni.RdmaActiveEndpointGroup;
 import com.ibm.disni.RdmaServerEndpoint;
@@ -7,6 +7,7 @@ import jarg.concerrt.connections.WorkCompletionHandler;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TwoSidedServer {
@@ -28,11 +29,12 @@ public class TwoSidedServer {
         // Settings
         int timeout = 1000;
         boolean polling = false;
-        int maxWRs = 128;
+        int maxWRs = 10;
         int cqSize = maxWRs;
         int maxSge = 1;
         int maxBufferSize = 200;
 
+        clients = new ArrayList<>();
         // Create endpoint
         endpointGroup = new RdmaActiveEndpointGroup<>(timeout, polling,
                 maxWRs, maxSge, cqSize);

@@ -1,4 +1,4 @@
-package jarg.examples.messaging.two_sided;
+package jarg.concerrt.examples.messaging.twosided;
 
 import com.ibm.disni.RdmaActiveEndpointGroup;
 import jarg.concerrt.connections.ConceRRTEndpoint;
@@ -24,10 +24,17 @@ public class TwoSidedClient {
     }
 
     public void init() throws IOException {
+        // Settings
+        int timeout = 1000;
+        boolean polling = false;
+        int maxWRs = 10;
+        int cqSize = maxWRs;
+        int maxSge = 1;
+        int maxBufferSize = 200;
         // Create endpoint
-        endpointGroup =  new RdmaActiveEndpointGroup<>(1000, false,
-                128, 4, 128);
-        factory = new ClientEndpointFactory(endpointGroup,200, 100);
+        endpointGroup =  new RdmaActiveEndpointGroup<>(timeout, polling,
+                maxWRs, maxSge, cqSize);
+        factory = new ClientEndpointFactory(endpointGroup,maxBufferSize, maxWRs);
         endpointGroup.init(factory);
         clientEndpoint = endpointGroup.createEndpoint();
     }
@@ -46,15 +53,21 @@ public class TwoSidedClient {
         int retries = 5;
         for(int i=0; i < retries; i++){
             // get free Work Request id for a 'send' operation
-            WorkRequestData wrData = clientEndpoint.
-                    getWorkRequestBlocking(ConceRRTEndpoint.PostedRequestType.SEND);
+            WorkRequestData wrData = clientEndpoint.getWorkRequestBlocking();
             // fill tha data buffer with data to send across
-            String helloMessage = "Hello message " +  Integer.toString(i);
             ByteBuffer sendBuffer = wrData.getBuffer();
+            sendBuffer.putInt(wrData.getId()+10);  // use this to identify the message
+            String helloMessage = "Hello message ";
             for(int j=0; j < helloMessage.length(); j ++){
-                sendBuffer.putChar(helloMessage.charAt(i));
+                sendBuffer.putChar(helloMessage.charAt(j));
             }
             sendBuffer.flip();
+
+            // See what you send
+            int irrelevant = sendBuffer.getInt();
+            String text = sendBuffer.asCharBuffer().toString();
+            System.out.println("Will send : "+text);
+            sendBuffer.rewind();
             // send the data across
             clientEndpoint.send(wrData.getId(), sendBuffer.limit(), WorkRequestTypes.TWO_SIDED_SIGNALED);
         }

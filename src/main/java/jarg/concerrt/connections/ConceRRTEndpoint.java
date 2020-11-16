@@ -34,7 +34,6 @@ public class ConceRRTEndpoint extends RdmaActiveEndpoint {
     IbvMr rdmaEndpointMemoryRegion;             // the above block's memory region
     boolean twoSidedReceiveEnabled;             // whether we use two-sided recv operations
     IntArrayFIFOQueue freeSendWrIds;            // available Work Request ids for send requests
-    IntArrayFIFOQueue freeRecvWrIds;            // available Work Request ids for recv requests
     Map<ByteBuffer, Long> sendBufferAddressesMap; // <send buffers, memory addresses>
     Map<ByteBuffer, Long> recvBufferAddressesMap; // <recv buffers, memory addresses>
     // Supported operations ------------------------------------------------------
@@ -73,10 +72,7 @@ public class ConceRRTEndpoint extends RdmaActiveEndpoint {
             receiveBuffers = new ByteBuffer[maxWRs];
             recvBufferAddressesMap = new HashMap<>();
             twoSidedReceiveEnabled = true;
-            freeRecvWrIds = new IntArrayFIFOQueue(maxWRs);
         }
-        // prepare objects for the supported operations
-        enableSupportedOperations(supportedOperationsFlag);
     }
 
 
@@ -106,6 +102,7 @@ public class ConceRRTEndpoint extends RdmaActiveEndpoint {
      */
     @Override
     public void init() throws IOException{
+        System.out.println("init -----------------------");
         int bufferArrayBytes = maxBufferSize * maxWRs;
         // If we use two-sided communication, we'll need separate receive buffers
         if(twoSidedReceiveEnabled){
@@ -121,7 +118,9 @@ public class ConceRRTEndpoint extends RdmaActiveEndpoint {
                 // keep the memory address of the buffer for communications
                 long address = ((sun.nio.ch.DirectBuffer) sendBuffers[i])
                         .address();
+                System.out.println("Send buffer address : "+address);
                 sendBufferAddressesMap.put(sendBuffers[i], address);
+                System.out.println("Send buffer map address : "+sendBufferAddressesMap.get(sendBuffers[i]));
             }
             for(int i=0; i < maxWRs; i++){
                 rdmaEndpointMemoryBuffer.limit(currentLimit);
@@ -131,7 +130,9 @@ public class ConceRRTEndpoint extends RdmaActiveEndpoint {
                 // keep the memory address of the buffer for communications
                 long address = ((sun.nio.ch.DirectBuffer) receiveBuffers[i])
                         .address();
+                System.out.println("Recv buffer address : "+address);
                 recvBufferAddressesMap.put(receiveBuffers[i], address);
+                System.out.println("Recv buffer map address : "+recvBufferAddressesMap.get(receiveBuffers[i]));
             }
         } else{ // otherwise we only need a shared buffer for the 'send' RDMA operations
             rdmaEndpointMemoryBuffer = ByteBuffer.allocateDirect(bufferArrayBytes);
@@ -150,6 +151,8 @@ public class ConceRRTEndpoint extends RdmaActiveEndpoint {
         // Register the large allocated memory to the Network Card too
         rdmaEndpointMemoryRegion = registerMemory(rdmaEndpointMemoryBuffer)
                                     .execute().free().getMr();
+        // prepare objects for the supported operations
+        enableSupportedOperations(supportedOperationsFlag);
     }
 
     /**
@@ -162,23 +165,30 @@ public class ConceRRTEndpoint extends RdmaActiveEndpoint {
     public void dispatchCqEvent(IbvWC wc) throws IOException {
         // Compare to opcodes from com.ibm.disni.verbs.IbvWC.IbvWcOpcode
         // Then call the appropriate handlers for the events and free the Work Request id for reuse
-        int workRequestId = (int) wc.getWr_id();
-        // Completion for two-side receive operation
-        if(wc.getOpcode() == 128){
-            completionHandler.handleTwoSidedReceive(wc, this,
-                    receiveBuffers[(int) wc.getWr_id()]);
-        }
-        // Completion for two-side send operation
-        else if(wc.getOpcode() == 0){
-            completionHandler.handleTwoSidedSend(wc, this);
-        }
-        // Completion for one-sided write operation
-        else if(wc.getOpcode() == 1){
-            completionHandler.handleOneSidedWrite(wc, this);
-        }
-        // Completion for one-sided read operation
-        else if(wc.getOpcode() == 2){
-            completionHandler.handleOneSidedRead(wc, this);
+
+        if (wc.getStatus() == 5){
+            throw new IOException("Unkown operation! wc.status " + wc.getStatus());
+        } else if (wc.getStatus() != 0){
+            throw new IOException("Faulty operation! wc.status " + wc.getStatus());
+        }else{
+            int workRequestId = (int) wc.getWr_id();
+            // Completion for two-side receive operation
+            if(wc.getOpcode() == 128){
+                completionHandler.handleTwoSidedReceive(wc, this,
+                        receiveBuffers[(int) wc.getWr_id()]);
+            }
+            // Completion for two-side send operation
+            else if(wc.getOpcode() == 0){
+                completionHandler.handleTwoSidedSend(wc, this);
+            }
+            // Completion for one-sided write operation
+            else if(wc.getOpcode() == 1){
+                completionHandler.handleOneSidedWrite(wc, this);
+            }
+            // Completion for one-sided read operation
+            else if(wc.getOpcode() == 2){
+                completionHandler.handleOneSidedRead(wc, this);
+            }
         }
     }
 
@@ -194,131 +204,6 @@ public class ConceRRTEndpoint extends RdmaActiveEndpoint {
         deregisterMemory(rdmaEndpointMemoryRegion);
     }
 
-    /* *************************************************************
-     * Manage Work Request Ids
-     * *************************************************************/
-
-    /**
-     * It will return a {@link WorkRequestData WorkRequestData} object
-     * that contains a Work Request id and the corresponding buffer.
-     * If there is no available Work Request id at the moment, the
-     * method will block until there is one.
-     *
-     * @param type a {@link PostedRequestType PostedRequestType} type
-     * @return the {@link WorkRequestData WorkRequestData} object that
-     * contains information about the Work Request.
-     */
-    public WorkRequestData getWorkRequestBlocking(PostedRequestType type){
-        WorkRequestData data = null;
-        int wrId = -1;
-        // if there are no available Work Request ids, block until there are
-        if(type == PostedRequestType.SEND){
-            synchronized (freeSendWrIds){
-                while(freeSendWrIds.isEmpty()){
-                    try {
-                        freeSendWrIds.wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                wrId = freeSendWrIds.dequeueInt();
-            }
-            ByteBuffer buffer = sendBuffers[wrId];
-            data = new WorkRequestData(wrId, buffer);
-        }else if (type == PostedRequestType.RECEIVE) {
-            synchronized (freeRecvWrIds){
-                while(freeRecvWrIds.isEmpty()){
-                    try {
-                        freeRecvWrIds.wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                wrId = freeRecvWrIds.dequeueInt();
-            }
-            ByteBuffer buffer = receiveBuffers[wrId];
-            data = new WorkRequestData(wrId, buffer);
-        }
-        return data;
-    }
-
-    /**
-     * It will return a {@link WorkRequestData WorkRequestData} object
-     * that contains a Work Request id and the corresponding buffer.
-     * If there is no available Work Request id at the moment, the
-     * returned object will be null.
-     *
-     * @param type a {@link PostedRequestType PostedRequestType} type
-     * @return the {@link WorkRequestData WorkRequestData} object that
-     * contains information about the Work Request or null on failure.
-     */
-    public WorkRequestData getWorkRequestNow(PostedRequestType type){
-        WorkRequestData data = null;
-        int wrId = -1;
-
-        if(type == PostedRequestType.SEND) {
-            synchronized (freeSendWrIds){
-                // try to get a WR id
-                if (!freeSendWrIds.isEmpty()) {
-                    wrId = freeSendWrIds.dequeueInt();
-                }
-            }
-            // if a WR id was available
-            ByteBuffer buffer;
-            if (wrId > -1) {
-                buffer = sendBuffers[wrId];
-                data = new WorkRequestData(wrId, buffer);
-            }
-        }else if (type == PostedRequestType.RECEIVE) {
-            synchronized (freeRecvWrIds){
-                // try to get a WR id
-                if (!freeRecvWrIds.isEmpty()) {
-                    wrId = freeRecvWrIds.dequeueInt();
-                }
-            }
-            // if a WR id was available
-            ByteBuffer buffer;
-            if (wrId > -1) {
-                buffer = receiveBuffers[wrId];
-                data = new WorkRequestData(wrId, buffer);
-            }
-        }
-        return data;
-    }
-
-    /**
-     * Returns a used Work Request id to a queue of available
-     * Work Request ids. The returned id can then be reused by
-     * other Work Requests.
-     * @param type a {@link PostedRequestType PostedRequestType} type
-     * @param workRequestId the Work Request id that is freed.
-     */
-    public void freeUpWrID(int workRequestId, PostedRequestType type){
-        if(type == PostedRequestType.SEND) {
-            synchronized (freeSendWrIds){
-                freeSendWrIds.enqueue(workRequestId);
-                // if the queue was empty, notify any blocked threads
-                if(freeSendWrIds.size() == 1){
-                    freeSendWrIds.notifyAll();
-                }
-            }
-        }else if (type == PostedRequestType.RECEIVE) {
-            synchronized (freeRecvWrIds){
-                freeRecvWrIds.enqueue(workRequestId);
-                try {
-                    // now that this WR id is free, we can repost
-                    // that 'receive' immediately to accept new data
-                    twoSidedRecvSVCs[workRequestId].execute();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                // if the queue was empty, notify any blocked threads
-                if(freeRecvWrIds.size() == 1){
-                    freeRecvWrIds.notifyAll();
-                }
-            }
-        }
-    }
 
     /* *************************************************************
      * Manage Work Requests that are sent to the Network Card
@@ -336,6 +221,7 @@ public class ConceRRTEndpoint extends RdmaActiveEndpoint {
         List<IbvSendWR> sendRequests;
         List<IbvRecvWR> recvRequests;
 
+        System.out.println("initialize two sided ---------------");
         for(int i=0; i < maxWRs; i++){
             // We need to store an SVC for one request at a time, so
             // we need new lists each time
@@ -350,6 +236,8 @@ public class ConceRRTEndpoint extends RdmaActiveEndpoint {
                     sendBufferAddressesMap.get(sendBuffers[i]));
             sendRequests.add(twoSidedSendRequest.getSendWR());
 
+            System.out.println("Send buffer address : " + sendBufferAddressesMap.get(sendBuffers[i]));
+
             twoSidedRecvRequest = new TwoSidedRecvRequest(rdmaEndpointMemoryRegion);
             twoSidedRecvRequest.prepareRequest();
             twoSidedRecvRequest.setRequestId(i);
@@ -360,11 +248,11 @@ public class ConceRRTEndpoint extends RdmaActiveEndpoint {
             // create and store SVCs
             twoSidedSendSVCs[i] = postSend(sendRequests);
             twoSidedRecvSVCs[i] = postRecv(recvRequests);
+
+            System.out.println("Recv buffer address : " + recvBufferAddressesMap.get(receiveBuffers[i]));
+
             // post receive operations now that the endpoint is created,
             // so that it can receive messages immediately after creation.
-            // This also means that there won't be any available Work Request
-            // ids for 'receive' operations at the beginning, but they can be
-            // freed once a Completion Event for them is handled.
             twoSidedRecvSVCs[i].execute();
         }
     }
@@ -481,6 +369,96 @@ public class ConceRRTEndpoint extends RdmaActiveEndpoint {
     public void recv(int workRequestId) throws IOException{
         twoSidedRecvSVCs[workRequestId].execute();
     }
+
+    /* *************************************************************
+     * Manage Work Request Ids
+     * *************************************************************/
+
+    /**
+     * Used before posting a 'send' operation to the NIC.
+     * It will return a {@link WorkRequestData WorkRequestData} object
+     * that contains a Work Request id and the corresponding buffer.
+     * If there is no available Work Request id at the moment, the
+     * method will block until there is one.
+     *
+     * @return the {@link WorkRequestData WorkRequestData} object that
+     * contains information about the Work Request.
+     */
+    public WorkRequestData getWorkRequestBlocking(){
+        WorkRequestData data = null;
+        int wrId = -1;
+        // if there are no available Work Request ids, block until there are
+        synchronized (freeSendWrIds){
+            while(freeSendWrIds.isEmpty()){
+                try {
+                    freeSendWrIds.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            wrId = freeSendWrIds.dequeueInt();
+        }
+        ByteBuffer buffer = sendBuffers[wrId];
+        data = new WorkRequestData(wrId, buffer);
+        return data;
+    }
+
+    /**
+     * Used before posting a 'send' operation to the NIC.
+     * It will return a {@link WorkRequestData WorkRequestData} object
+     * that contains a Work Request id and the corresponding buffer.
+     * If there is no available Work Request id at the moment, the
+     * returned object will be null.
+     *
+     * @return the {@link WorkRequestData WorkRequestData} object that
+     * contains information about the Work Request or null on failure.
+     */
+    public WorkRequestData getWorkRequestNow(){
+        WorkRequestData data = null;
+        int wrId = -1;
+
+        synchronized (freeSendWrIds){
+            // try to get a WR id
+            if (!freeSendWrIds.isEmpty()) {
+                wrId = freeSendWrIds.dequeueInt();
+            }
+        }
+        // if a WR id was available
+        ByteBuffer buffer;
+        if (wrId > -1) {
+            buffer = sendBuffers[wrId];
+            data = new WorkRequestData(wrId, buffer);
+        }
+        return data;
+    }
+
+    /**
+     * Returns a used Work Request id to a queue of available
+     * Work Request ids. The returned id can then be reused by
+     * other Work Requests.
+     * @param type a {@link PostedRequestType PostedRequestType} type
+     * @param workRequestId the Work Request id that is freed.
+     */
+    public void freeUpWrID(int workRequestId, PostedRequestType type){
+        if(type == PostedRequestType.SEND) {
+            synchronized (freeSendWrIds){
+                freeSendWrIds.enqueue(workRequestId);
+                // if the queue was empty, notify any blocked threads
+                if(freeSendWrIds.size() == 1){
+                    freeSendWrIds.notifyAll();
+                }
+            }
+        }else if (type == PostedRequestType.RECEIVE) {
+            // now that this WR id is free for reuse, we can repost
+            // that 'receive' immediately to accept new data
+            try {
+                twoSidedRecvSVCs[workRequestId].execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
     /* *************************************************************
      * Getters

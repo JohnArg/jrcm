@@ -18,6 +18,7 @@ public abstract class SendRequest extends BasicWorkRequest{
     public SendRequest(IbvMr memoryRegion){
         super(memoryRegion);
         // attach scatter/gather list to the work request
+        sendWR = new IbvSendWR();
         sendWR.setSg_list(sgeList);
     }
 

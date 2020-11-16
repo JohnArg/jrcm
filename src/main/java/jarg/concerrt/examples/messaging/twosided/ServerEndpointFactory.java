@@ -1,4 +1,4 @@
-package jarg.examples.messaging.two_sided;
+package jarg.concerrt.examples.messaging.twosided;
 
 import com.ibm.disni.RdmaActiveEndpointGroup;
 import com.ibm.disni.RdmaEndpointFactory;
@@ -8,13 +8,12 @@ import jarg.concerrt.requests.WorkRequestTypes;
 
 import java.io.IOException;
 
-public class ClientEndpointFactory implements RdmaEndpointFactory<ConceRRTEndpoint> {
-
+public class ServerEndpointFactory implements RdmaEndpointFactory<ConceRRTEndpoint> {
     private RdmaActiveEndpointGroup<ConceRRTEndpoint> endpointGroup;
     private int maxBufferSize;
     private int maxWRs;
 
-    public ClientEndpointFactory(RdmaActiveEndpointGroup<ConceRRTEndpoint> endpointGroup,
+    public ServerEndpointFactory(RdmaActiveEndpointGroup<ConceRRTEndpoint> endpointGroup,
                                  int maxBufferSize, int maxWRs) {
         this.endpointGroup = endpointGroup;
         this.maxBufferSize = maxBufferSize;
@@ -24,6 +23,6 @@ public class ClientEndpointFactory implements RdmaEndpointFactory<ConceRRTEndpoi
     @Override
     public ConceRRTEndpoint createEndpoint(RdmaCmId id, boolean serverSide) throws IOException {
         return new ConceRRTEndpoint(endpointGroup, id, serverSide, maxBufferSize, maxWRs,
-                WorkRequestTypes.TWO_SIDED_SIGNALED, new ClientCompletionHandler());
+                WorkRequestTypes.TWO_SIDED_SIGNALED, new ServerCompletionHandler());
     }
 }

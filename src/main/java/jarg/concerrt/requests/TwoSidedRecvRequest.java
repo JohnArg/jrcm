@@ -11,6 +11,7 @@ public class TwoSidedRecvRequest extends BasicWorkRequest implements Preparable{
     public TwoSidedRecvRequest(IbvMr memoryRegion){
         super(memoryRegion);
         // attach scatter/gather list to the work request
+        recvWR = new IbvRecvWR();
         recvWR.setSg_list(sgeList);
     }
 

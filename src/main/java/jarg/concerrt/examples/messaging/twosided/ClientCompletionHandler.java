@@ -1,4 +1,4 @@
-package jarg.examples.messaging.two_sided;
+package jarg.concerrt.examples.messaging.twosided;
 
 import com.ibm.disni.verbs.IbvWC;
 import jarg.concerrt.connections.ConceRRTEndpoint;
@@ -6,22 +6,22 @@ import jarg.concerrt.connections.WorkCompletionHandler;
 
 import java.nio.ByteBuffer;
 
-public class ServerCompletionHandler implements WorkCompletionHandler {
-
+public class ClientCompletionHandler implements WorkCompletionHandler {
 
     @Override
     public void handleTwoSidedReceive(IbvWC wc, ConceRRTEndpoint endpoint, ByteBuffer receiveBuffer) {
-        System.out.format("Received completion for WR %d. The data is : "
-                + receiveBuffer.asCharBuffer().toString() + "\n", (int) wc.getWr_id());
+        String text = receiveBuffer.asCharBuffer().toString();
+        System.out.format("Received completion for WR %d. Buffer address %d. The data is : %s\n",
+                ((sun.nio.ch.DirectBuffer) receiveBuffer).address(), (int) wc.getWr_id(), text);
         receiveBuffer.clear();
-        // Always free the id after we're done
+        // Always free the Work Request id after we're done
         endpoint.freeUpWrID((int) wc.getWr_id(), ConceRRTEndpoint.PostedRequestType.RECEIVE);
     }
 
     @Override
     public void handleTwoSidedSend(IbvWC wc, ConceRRTEndpoint endpoint) {
         System.out.format("My message with id %d was sent\n", (int) wc.getWr_id());
-        // Always free the id after we're done
+        // Always free the Work Request id after we're done
         endpoint.freeUpWrID((int) wc.getWr_id(), ConceRRTEndpoint.PostedRequestType.SEND);
     }
 
@@ -36,5 +36,4 @@ public class ServerCompletionHandler implements WorkCompletionHandler {
     public void handleOneSidedRead(IbvWC wc, ConceRRTEndpoint endpoint) {
 
     }
-
 }
