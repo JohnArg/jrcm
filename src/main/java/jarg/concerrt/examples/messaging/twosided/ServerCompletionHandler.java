@@ -17,8 +17,8 @@ public class ServerCompletionHandler implements WorkCompletionHandler {
         receiveBuffer.limit(32);
         ByteBuffer textBuffer = receiveBuffer.slice();
         String text = textBuffer.asCharBuffer().toString();
-        System.out.format("Received completion for WR %d. Buffer address %d,  id : %d. The data is : %s\n",
-                ((sun.nio.ch.DirectBuffer) receiveBuffer).address(), (int) wc.getWr_id(), bufferId, text);
+        System.out.format("Received completion for WR %d. Buffer id : %d. The data is : %s\n",
+               (int) wc.getWr_id(), bufferId, text);
 
         // create a response for the received message ----------------------------
         String response = "ACK " + bufferId;
@@ -44,7 +44,7 @@ public class ServerCompletionHandler implements WorkCompletionHandler {
 
     @Override
     public void handleTwoSidedSend(IbvWC wc, ConceRRTEndpoint endpoint) {
-        System.out.format("My message with id %d was sent\n", (int) wc.getWr_id());
+        System.out.format("My message with WR id %d was sent\n", (int) wc.getWr_id());
         // Always free the Work Request id after we're done
         endpoint.freeUpWrID((int) wc.getWr_id(), ConceRRTEndpoint.PostedRequestType.SEND);
     }

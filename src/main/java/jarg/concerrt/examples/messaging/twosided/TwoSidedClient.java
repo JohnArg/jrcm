@@ -17,6 +17,7 @@ public class TwoSidedClient {
     private RdmaActiveEndpointGroup<ConceRRTEndpoint> endpointGroup;
     private ClientEndpointFactory factory;
     ConceRRTEndpoint clientEndpoint;
+    private int messagesToSend;
 
     public TwoSidedClient(String host, String port){
         this.serverHost = host;
@@ -31,10 +32,11 @@ public class TwoSidedClient {
         int cqSize = maxWRs;
         int maxSge = 1;
         int maxBufferSize = 200;
+        messagesToSend = 5;
         // Create endpoint
         endpointGroup =  new RdmaActiveEndpointGroup<>(timeout, polling,
                 maxWRs, maxSge, cqSize);
-        factory = new ClientEndpointFactory(endpointGroup,maxBufferSize, maxWRs);
+        factory = new ClientEndpointFactory(endpointGroup,maxBufferSize, maxWRs, messagesToSend);
         endpointGroup.init(factory);
         clientEndpoint = endpointGroup.createEndpoint();
     }
@@ -50,8 +52,7 @@ public class TwoSidedClient {
                 + clientEndpoint.getDstAddr().toString());
 
         // send messages ------------------------------------
-        int retries = 5;
-        for(int i=0; i < retries; i++){
+        for(int i=0; i < messagesToSend; i++){
             // get free Work Request id for a 'send' operation
             WorkRequestData wrData = clientEndpoint.getWorkRequestBlocking();
             // fill tha data buffer with data to send across

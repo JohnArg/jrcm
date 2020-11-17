@@ -34,8 +34,8 @@ public class ConceRRTEndpoint extends RdmaActiveEndpoint {
     IbvMr rdmaEndpointMemoryRegion;             // the above block's memory region
     boolean twoSidedReceiveEnabled;             // whether we use two-sided recv operations
     IntArrayFIFOQueue freeSendWrIds;            // available Work Request ids for send requests
-    Map<ByteBuffer, Long> sendBufferAddressesMap; // <send buffers, memory addresses>
-    Map<ByteBuffer, Long> recvBufferAddressesMap; // <recv buffers, memory addresses>
+    long[] sendBufferAddresses;                 // addresses of send buffers
+    long[] recvBufferAddresses;                 // addresses of recv buffers
     // Supported operations ------------------------------------------------------
     int supportedOperationsFlag;                // which WorkRequestTypes will be used
     // Keep stored SVCs (Stateful Verb Calls => see jVerbs from IBM) for each request type here.
@@ -64,13 +64,13 @@ public class ConceRRTEndpoint extends RdmaActiveEndpoint {
         for(int i=0; i<maxWRs; i++){
             freeSendWrIds.enqueue(i);
         }
-        sendBufferAddressesMap = new HashMap<>();
+        sendBufferAddresses = new long[maxWRs];
         this.supportedOperationsFlag = supportedOperationsFlag;
         this.completionHandler = completionHandler;
         // if we are going to use two-sided operations, we need extra initializations
         if((supportedOperationsFlag & 0b1) == 1){
             receiveBuffers = new ByteBuffer[maxWRs];
-            recvBufferAddressesMap = new HashMap<>();
+            recvBufferAddresses = new long[maxWRs];
             twoSidedReceiveEnabled = true;
         }
     }
@@ -102,7 +102,6 @@ public class ConceRRTEndpoint extends RdmaActiveEndpoint {
      */
     @Override
     public void init() throws IOException{
-        System.out.println("init -----------------------");
         int bufferArrayBytes = maxBufferSize * maxWRs;
         // If we use two-sided communication, we'll need separate receive buffers
         if(twoSidedReceiveEnabled){
@@ -118,9 +117,7 @@ public class ConceRRTEndpoint extends RdmaActiveEndpoint {
                 // keep the memory address of the buffer for communications
                 long address = ((sun.nio.ch.DirectBuffer) sendBuffers[i])
                         .address();
-                System.out.println("Send buffer address : "+address);
-                sendBufferAddressesMap.put(sendBuffers[i], address);
-                System.out.println("Send buffer map address : "+sendBufferAddressesMap.get(sendBuffers[i]));
+                sendBufferAddresses[i] = address;
             }
             for(int i=0; i < maxWRs; i++){
                 rdmaEndpointMemoryBuffer.limit(currentLimit);
@@ -130,9 +127,7 @@ public class ConceRRTEndpoint extends RdmaActiveEndpoint {
                 // keep the memory address of the buffer for communications
                 long address = ((sun.nio.ch.DirectBuffer) receiveBuffers[i])
                         .address();
-                System.out.println("Recv buffer address : "+address);
-                recvBufferAddressesMap.put(receiveBuffers[i], address);
-                System.out.println("Recv buffer map address : "+recvBufferAddressesMap.get(receiveBuffers[i]));
+                recvBufferAddresses[i] = address;
             }
         } else{ // otherwise we only need a shared buffer for the 'send' RDMA operations
             rdmaEndpointMemoryBuffer = ByteBuffer.allocateDirect(bufferArrayBytes);
@@ -145,7 +140,7 @@ public class ConceRRTEndpoint extends RdmaActiveEndpoint {
                 // keep the memory address of the buffer for communications
                 long address = ((sun.nio.ch.DirectBuffer) sendBuffers[i])
                         .address();
-                sendBufferAddressesMap.put(sendBuffers[i], address);
+                sendBufferAddresses[i] = address;
             }
         }
         // Register the large allocated memory to the Network Card too
@@ -221,7 +216,6 @@ public class ConceRRTEndpoint extends RdmaActiveEndpoint {
         List<IbvSendWR> sendRequests;
         List<IbvRecvWR> recvRequests;
 
-        System.out.println("initialize two sided ---------------");
         for(int i=0; i < maxWRs; i++){
             // We need to store an SVC for one request at a time, so
             // we need new lists each time
@@ -233,23 +227,19 @@ public class ConceRRTEndpoint extends RdmaActiveEndpoint {
             twoSidedSendRequest.setRequestId(i);
             twoSidedSendRequest.setSgeLength(maxBufferSize);
             twoSidedSendRequest.setBufferMemoryAddress(
-                    sendBufferAddressesMap.get(sendBuffers[i]));
+                    sendBufferAddresses[i]);
             sendRequests.add(twoSidedSendRequest.getSendWR());
-
-            System.out.println("Send buffer address : " + sendBufferAddressesMap.get(sendBuffers[i]));
 
             twoSidedRecvRequest = new TwoSidedRecvRequest(rdmaEndpointMemoryRegion);
             twoSidedRecvRequest.prepareRequest();
             twoSidedRecvRequest.setRequestId(i);
             twoSidedRecvRequest.setSgeLength(maxBufferSize);
             twoSidedRecvRequest.setBufferMemoryAddress(
-                    recvBufferAddressesMap.get(receiveBuffers[i]));
+                    recvBufferAddresses[i]);
             recvRequests.add(twoSidedRecvRequest.getRecvWR());
             // create and store SVCs
             twoSidedSendSVCs[i] = postSend(sendRequests);
             twoSidedRecvSVCs[i] = postRecv(recvRequests);
-
-            System.out.println("Recv buffer address : " + recvBufferAddressesMap.get(receiveBuffers[i]));
 
             // post receive operations now that the endpoint is created,
             // so that it can receive messages immediately after creation.
@@ -275,7 +265,7 @@ public class ConceRRTEndpoint extends RdmaActiveEndpoint {
             oneSidedWriteRequest.setRequestId(i);
             oneSidedWriteRequest.setSgeLength(maxBufferSize);
             oneSidedWriteRequest.setBufferMemoryAddress(
-                    sendBufferAddressesMap.get(sendBuffers[i]));
+                    sendBufferAddresses[i]);
             sendRequests.add(oneSidedWriteRequest.getSendWR());
             // create and store SVCs
             oneSidedWriteSVCs[i] = postSend(sendRequests);
@@ -300,7 +290,7 @@ public class ConceRRTEndpoint extends RdmaActiveEndpoint {
             oneSidedReadRequest.setRequestId(i);
             oneSidedReadRequest.setSgeLength(maxBufferSize);
             oneSidedReadRequest.setBufferMemoryAddress(
-                    sendBufferAddressesMap.get(sendBuffers[i]));
+                    sendBufferAddresses[i]);
             sendRequests.add(oneSidedReadRequest.getSendWR());
             // create and store SVCs
             oneSidedReadSVCs[i] = postSend(sendRequests);
