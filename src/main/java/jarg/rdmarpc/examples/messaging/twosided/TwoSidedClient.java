@@ -1,9 +1,9 @@
-package jarg.concerrt.examples.messaging.twosided;
+package jarg.rdmarpc.examples.messaging.twosided;
 
 import com.ibm.disni.RdmaActiveEndpointGroup;
-import jarg.concerrt.connections.ConceRRTEndpoint;
-import jarg.concerrt.connections.WorkRequestData;
-import jarg.concerrt.requests.WorkRequestTypes;
+import jarg.rdmarpc.connections.RpcBasicEndpoint;
+import jarg.rdmarpc.connections.WorkRequestData;
+import jarg.rdmarpc.requests.WorkRequestTypes;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -14,9 +14,9 @@ public class TwoSidedClient {
 
     private String serverHost;
     private String serverPort;
-    private RdmaActiveEndpointGroup<ConceRRTEndpoint> endpointGroup;
+    private RdmaActiveEndpointGroup<RpcBasicEndpoint> endpointGroup;
     private ClientEndpointFactory factory;
-    ConceRRTEndpoint clientEndpoint;
+    RpcBasicEndpoint clientEndpoint;
     private int messagesToSend;
 
     public TwoSidedClient(String host, String port){

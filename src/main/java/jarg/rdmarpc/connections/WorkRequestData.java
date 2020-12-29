@@ -1,4 +1,4 @@
-package jarg.concerrt.connections;
+package jarg.rdmarpc.connections;
 
 import java.nio.ByteBuffer;
 

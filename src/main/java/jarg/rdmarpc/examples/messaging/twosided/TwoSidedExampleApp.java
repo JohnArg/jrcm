@@ -1,4 +1,4 @@
-package jarg.concerrt.examples.messaging.twosided;
+package jarg.rdmarpc.examples.messaging.twosided;
 
 import java.io.IOException;
 

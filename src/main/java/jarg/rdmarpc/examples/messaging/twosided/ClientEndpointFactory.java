@@ -1,21 +1,21 @@
-package jarg.concerrt.examples.messaging.twosided;
+package jarg.rdmarpc.examples.messaging.twosided;
 
 import com.ibm.disni.RdmaActiveEndpointGroup;
 import com.ibm.disni.RdmaEndpointFactory;
 import com.ibm.disni.verbs.RdmaCmId;
-import jarg.concerrt.connections.ConceRRTEndpoint;
-import jarg.concerrt.requests.WorkRequestTypes;
+import jarg.rdmarpc.connections.RpcBasicEndpoint;
+import jarg.rdmarpc.requests.WorkRequestTypes;
 
 import java.io.IOException;
 
-public class ClientEndpointFactory implements RdmaEndpointFactory<ConceRRTEndpoint> {
+public class ClientEndpointFactory implements RdmaEndpointFactory<RpcBasicEndpoint> {
 
-    private RdmaActiveEndpointGroup<ConceRRTEndpoint> endpointGroup;
+    private RdmaActiveEndpointGroup<RpcBasicEndpoint> endpointGroup;
     private int maxBufferSize;
     private int maxWRs;
     private int maxAcks;
 
-    public ClientEndpointFactory(RdmaActiveEndpointGroup<ConceRRTEndpoint> endpointGroup,
+    public ClientEndpointFactory(RdmaActiveEndpointGroup<RpcBasicEndpoint> endpointGroup,
                                  int maxBufferSize, int maxWRs, int maxAcks) {
         this.endpointGroup = endpointGroup;
         this.maxBufferSize = maxBufferSize;
@@ -24,9 +24,9 @@ public class ClientEndpointFactory implements RdmaEndpointFactory<ConceRRTEndpoi
     }
 
     @Override
-    public ConceRRTEndpoint createEndpoint(RdmaCmId id, boolean serverSide) throws IOException {
+    public RpcBasicEndpoint createEndpoint(RdmaCmId id, boolean serverSide) throws IOException {
         ClientCompletionHandler handler = new ClientCompletionHandler(maxAcks);
-        return new ConceRRTEndpoint(endpointGroup, id, serverSide, maxBufferSize, maxWRs,
+        return new RpcBasicEndpoint(endpointGroup, id, serverSide, maxBufferSize, maxWRs,
                 WorkRequestTypes.TWO_SIDED_SIGNALED, handler);
     }
 }

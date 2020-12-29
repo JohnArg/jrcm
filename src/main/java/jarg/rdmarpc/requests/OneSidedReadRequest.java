@@ -1,4 +1,4 @@
-package jarg.concerrt.requests;
+package jarg.rdmarpc.requests;
 
 import com.ibm.disni.verbs.IbvMr;
 import com.ibm.disni.verbs.IbvSendWR;

@@ -1,19 +1,17 @@
-package jarg.concerrt.connections;
+package jarg.rdmarpc.connections;
 
 import com.ibm.disni.RdmaActiveEndpoint;
 import com.ibm.disni.RdmaActiveEndpointGroup;
 import com.ibm.disni.verbs.*;
 import it.unimi.dsi.fastutil.ints.IntArrayFIFOQueue;
-import jarg.concerrt.requests.*;
+import jarg.rdmarpc.requests.*;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-public class ConceRRTEndpoint extends RdmaActiveEndpoint {
+public class RpcBasicEndpoint extends RdmaActiveEndpoint {
     /*
     Note :
     Two types of RDMA requests can be posted to the Network Card :
@@ -48,7 +46,7 @@ public class ConceRRTEndpoint extends RdmaActiveEndpoint {
     WorkCompletionHandler completionHandler;    // will handle completion events
 
 
-    public ConceRRTEndpoint(RdmaActiveEndpointGroup<? extends ConceRRTEndpoint> group,
+    public RpcBasicEndpoint(RdmaActiveEndpointGroup<? extends RpcBasicEndpoint> group,
                             RdmaCmId idPriv, boolean serverSide,
                             int maxBufferSize, int maxWRs, int supportedOperationsFlag,
                             WorkCompletionHandler completionHandler)

@@ -1,11 +1,7 @@
-package jarg.concerrt.requests;
+package jarg.rdmarpc.requests;
 
 import com.ibm.disni.verbs.IbvMr;
 import com.ibm.disni.verbs.IbvSendWR;
-import com.ibm.disni.verbs.SVCPostSend;
-
-import java.io.IOException;
-import java.util.List;
 
 /**
  * Defines a "send" Work Request for the NIC

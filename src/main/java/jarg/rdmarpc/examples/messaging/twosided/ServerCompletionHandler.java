@@ -1,10 +1,10 @@
-package jarg.concerrt.examples.messaging.twosided;
+package jarg.rdmarpc.examples.messaging.twosided;
 
 import com.ibm.disni.verbs.IbvWC;
-import jarg.concerrt.connections.ConceRRTEndpoint;
-import jarg.concerrt.connections.WorkCompletionHandler;
-import jarg.concerrt.connections.WorkRequestData;
-import jarg.concerrt.requests.WorkRequestTypes;
+import jarg.rdmarpc.connections.RpcBasicEndpoint;
+import jarg.rdmarpc.connections.WorkCompletionHandler;
+import jarg.rdmarpc.connections.WorkRequestData;
+import jarg.rdmarpc.requests.WorkRequestTypes;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -12,7 +12,7 @@ import java.nio.ByteBuffer;
 public class ServerCompletionHandler implements WorkCompletionHandler {
 
     @Override
-    public void handleTwoSidedReceive(IbvWC wc, ConceRRTEndpoint endpoint, ByteBuffer receiveBuffer) {
+    public void handleTwoSidedReceive(IbvWC wc, RpcBasicEndpoint endpoint, ByteBuffer receiveBuffer) {
         int bufferId = receiveBuffer.getInt();
         receiveBuffer.limit(32);
         ByteBuffer textBuffer = receiveBuffer.slice();
@@ -25,7 +25,7 @@ public class ServerCompletionHandler implements WorkCompletionHandler {
         // we don't need the received data anymore
         receiveBuffer.clear();
         // Always free the Work Request id after we're done
-        endpoint.freeUpWrID((int) wc.getWr_id(), ConceRRTEndpoint.PostedRequestType.RECEIVE);
+        endpoint.freeUpWrID((int) wc.getWr_id(), RpcBasicEndpoint.PostedRequestType.RECEIVE);
 
         // Send a response to the client -----------------------------------------
         WorkRequestData wrData = endpoint.getWorkRequestBlocking();
@@ -43,21 +43,21 @@ public class ServerCompletionHandler implements WorkCompletionHandler {
     }
 
     @Override
-    public void handleTwoSidedSend(IbvWC wc, ConceRRTEndpoint endpoint) {
+    public void handleTwoSidedSend(IbvWC wc, RpcBasicEndpoint endpoint) {
         System.out.format("My message with WR id %d was sent\n", (int) wc.getWr_id());
         // Always free the Work Request id after we're done
-        endpoint.freeUpWrID((int) wc.getWr_id(), ConceRRTEndpoint.PostedRequestType.SEND);
+        endpoint.freeUpWrID((int) wc.getWr_id(), RpcBasicEndpoint.PostedRequestType.SEND);
     }
 
     // We don't care about the following two here -------
 
     @Override
-    public void handleOneSidedWrite(IbvWC wc, ConceRRTEndpoint endpoint) {
+    public void handleOneSidedWrite(IbvWC wc, RpcBasicEndpoint endpoint) {
 
     }
 
     @Override
-    public void handleOneSidedRead(IbvWC wc, ConceRRTEndpoint endpoint) {
+    public void handleOneSidedRead(IbvWC wc, RpcBasicEndpoint endpoint) {
 
     }
 

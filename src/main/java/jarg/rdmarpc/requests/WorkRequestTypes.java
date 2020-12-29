@@ -1,4 +1,4 @@
-package jarg.concerrt.requests;
+package jarg.rdmarpc.requests;
 
 public class WorkRequestTypes {
     public static final int TWO_SIDED_SIGNALED = 1;       // 0b1

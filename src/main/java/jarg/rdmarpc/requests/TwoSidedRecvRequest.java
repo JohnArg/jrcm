@@ -1,8 +1,7 @@
-package jarg.concerrt.requests;
+package jarg.rdmarpc.requests;
 
 import com.ibm.disni.verbs.IbvMr;
 import com.ibm.disni.verbs.IbvRecvWR;
-import com.ibm.disni.verbs.IbvSendWR;
 
 public class TwoSidedRecvRequest extends BasicWorkRequest implements Preparable{
     private IbvRecvWR recvWR;

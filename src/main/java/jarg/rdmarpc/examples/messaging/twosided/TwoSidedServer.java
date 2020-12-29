@@ -1,9 +1,9 @@
-package jarg.concerrt.examples.messaging.twosided;
+package jarg.rdmarpc.examples.messaging.twosided;
 
 import com.ibm.disni.RdmaActiveEndpointGroup;
 import com.ibm.disni.RdmaServerEndpoint;
-import jarg.concerrt.connections.ConceRRTEndpoint;
-import jarg.concerrt.connections.WorkCompletionHandler;
+import jarg.rdmarpc.connections.RpcBasicEndpoint;
+import jarg.rdmarpc.connections.WorkCompletionHandler;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -14,11 +14,11 @@ public class TwoSidedServer {
 
     private String serverHost;
     private String serverPort;
-    private RdmaActiveEndpointGroup<ConceRRTEndpoint> endpointGroup;
+    private RdmaActiveEndpointGroup<RpcBasicEndpoint> endpointGroup;
     private ServerEndpointFactory factory;
-    private RdmaServerEndpoint<ConceRRTEndpoint> serverEndpoint;
+    private RdmaServerEndpoint<RpcBasicEndpoint> serverEndpoint;
     private WorkCompletionHandler completionHandler;
-    private List<ConceRRTEndpoint> clients;
+    private List<RpcBasicEndpoint> clients;
 
     public TwoSidedServer(String host, String port){
         this.serverHost = host;
@@ -55,7 +55,7 @@ public class TwoSidedServer {
 
         while(true){
             // accept client connection
-            ConceRRTEndpoint clientEndpoint = serverEndpoint.accept();
+            RpcBasicEndpoint clientEndpoint = serverEndpoint.accept();
             clients.add(clientEndpoint);
 
             System.out.println("Client connection accepted. Client : "
@@ -68,7 +68,7 @@ public class TwoSidedServer {
     public void finalize(){
         //Cleanup -------------------------------------------
         try {
-            for (ConceRRTEndpoint clientEndpoint : clients) {
+            for (RpcBasicEndpoint clientEndpoint : clients) {
                 clientEndpoint.close();
             }
             serverEndpoint.close();

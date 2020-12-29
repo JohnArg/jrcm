@@ -1,4 +1,4 @@
-package jarg.concerrt.connections;
+package jarg.rdmarpc.connections;
 
 import com.ibm.disni.RdmaActiveCqProcessor;
 import com.ibm.disni.RdmaActiveEndpointGroup;
@@ -22,18 +22,18 @@ import java.util.HashMap;
  * {@link RdmaActiveCqProcessor RdmaActiveCqProcessor}, that dispatches events to the corresponding
  * endpoints.
  */
-public class ConceRRTActiveEndpointGroup extends RdmaActiveEndpointGroup<ConceRRTEndpoint> {
+public class RpcActiveEndpointGroup extends RdmaActiveEndpointGroup<RpcBasicEndpoint> {
     private static final Logger logger = DiSNILogger.getLogger();
-    private HashMap<Integer, RdmaActiveCqProcessor<ConceRRTEndpoint>> cqMap;
+    private HashMap<Integer, RdmaActiveCqProcessor<RpcBasicEndpoint>> cqMap;
     private int timeout;
     private boolean polling;
     protected int cqSize;
     protected int maxSge;
     protected int maxWR;
-    private HashMap<ConceRRTEndpoint, RdmaActiveCqProcessor<ConceRRTEndpoint>> endpointProcessorMap;
+    private HashMap<RpcBasicEndpoint, RdmaActiveCqProcessor<RpcBasicEndpoint>> endpointProcessorMap;
 
-    public ConceRRTActiveEndpointGroup(int timeout, boolean polling, int maxWR,
-                                       int maxSge, int cqSize) throws IOException {
+    public RpcActiveEndpointGroup(int timeout, boolean polling, int maxWR,
+                                  int maxSge, int cqSize) throws IOException {
         super(timeout, polling, maxWR, maxSge, cqSize);
         this.timeout = timeout;
         this.polling = polling;
@@ -44,14 +44,14 @@ public class ConceRRTActiveEndpointGroup extends RdmaActiveEndpointGroup<ConceRR
 
 
     @Override
-    public RdmaCqProvider createCqProvider(ConceRRTEndpoint endpoint) throws IOException {
+    public RdmaCqProvider createCqProvider(RpcBasicEndpoint endpoint) throws IOException {
         logger.info("setting up cq processor");
         IbvContext context = endpoint.getIdPriv().getVerbs();
         if (context != null) {
             logger.info("setting up cq processor, context found");
-            RdmaActiveCqProcessor<ConceRRTEndpoint> cqProcessor = null;
+            RdmaActiveCqProcessor<RpcBasicEndpoint> cqProcessor = null;
             if (!endpointProcessorMap.containsKey(endpoint)) {
-                cqProcessor = new RdmaActiveCqProcessor<ConceRRTEndpoint>(endpoint.getIdPriv().getVerbs(),
+                cqProcessor = new RdmaActiveCqProcessor<RpcBasicEndpoint>(endpoint.getIdPriv().getVerbs(),
                         cqSize, maxWR, 0, 1, timeout, polling);
                 endpointProcessorMap.put(endpoint, cqProcessor);
                 cqProcessor.start();
@@ -65,9 +65,9 @@ public class ConceRRTActiveEndpointGroup extends RdmaActiveEndpointGroup<ConceRR
     }
 
     @Override
-    public IbvQP createQpProvider(ConceRRTEndpoint endpoint) throws IOException{
+    public IbvQP createQpProvider(RpcBasicEndpoint endpoint) throws IOException{
         IbvContext context = endpoint.getIdPriv().getVerbs();
-        RdmaActiveCqProcessor<ConceRRTEndpoint> cqProcessor = endpointProcessorMap.get(endpoint);
+        RdmaActiveCqProcessor<RpcBasicEndpoint> cqProcessor = endpointProcessorMap.get(endpoint);
         IbvCQ cq = cqProcessor.getCQ();
 
         IbvQPInitAttr attr = new IbvQPInitAttr();

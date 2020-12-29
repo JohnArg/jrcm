@@ -1,4 +1,4 @@
-package jarg.concerrt.requests;
+package jarg.rdmarpc.requests;
 
 /**
  * Holds information about a remote memory location, that
