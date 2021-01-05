@@ -1,12 +1,17 @@
-package jarg.rdmarpc.rpc;
+package jarg.rdmarpc.discovery.service;
 
-import jarg.rdmarpc.rdma.connections.RdmaRpcEndpoint;
-import jarg.rdmarpc.rdma.connections.WorkRequestData;
-import jarg.rdmarpc.rdma.netrequests.WorkRequestTypes;
+import jarg.rdmarpc.networking.communicators.RdmaCommunicator;
+import jarg.rdmarpc.networking.dependencies.netrequests.WorkRequestProxy;
+import jarg.rdmarpc.networking.dependencies.netrequests.WorkRequestProxyProvider;
+import jarg.rdmarpc.rpc.AbstractDataSerializer;
+import jarg.rdmarpc.rpc.RpcMessageType;
+import jarg.rdmarpc.rpc.RpcPacket;
+import jarg.rdmarpc.rpc.RpcPacketHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+import static jarg.rdmarpc.networking.dependencies.netrequests.types.WorkRequestType.TWO_SIDED_SEND_SIGNALED;
+
 
 public class SendResponseTask implements Runnable{
     private static final Logger logger = LoggerFactory.getLogger(SendResponseTask.class);
@@ -24,13 +29,14 @@ public class SendResponseTask implements Runnable{
     @Override
     public void run() {
         // First, get the necessary information from the received packet
-        RdmaRpcEndpoint endpoint = receivedPacket.getWorkRequest().getEndpoint();
+        RdmaCommunicator endpoint = receivedPacket.getWorkRequest().getEndpoint();
         RpcPacketHeaders receivedPacketHeaders = receivedPacket.getPacketHeaders();
         int invokedOperationType = receivedPacketHeaders.getOperationType();
         long invokedOperationId = receivedPacketHeaders.getOperationID();
         // Now get a new WR from the RDMA endpoint and create a new packet for it
-        WorkRequestData workRequestData = endpoint.getWorkRequestBlocking();
-        RpcPacket packet = new RpcPacket(workRequestData);
+        WorkRequestProxyProvider proxyProvider = endpoint.getWorkRequestProxyProvider();
+        WorkRequestProxy workRequestProxy = proxyProvider.getPostSendRequestBlocking(TWO_SIDED_SEND_SIGNALED);
+        RpcPacket packet = new RpcPacket(workRequestProxy);
         RpcPacketHeaders packetHeaders = packet.getPacketHeaders();
         // Prepare new packet headers
         if(isErrorResponse){
@@ -47,15 +53,10 @@ public class SendResponseTask implements Runnable{
         if((!isErrorResponse) && (serializer != null)){
             /* serialize response to WR buffer. The response was already set to the
             serializer before calling this task. */
-            serializer.setWorkRequestData(workRequestData);
+            serializer.setWorkRequestData(workRequestProxy);
             serializer.writeToWorkRequestBuffer();
         }
         // Time to send across the network
-        try {
-            endpoint.send(workRequestData.getId(), workRequestData.getBuffer().limit(),
-                    WorkRequestTypes.TWO_SIDED_SIGNALED);
-        } catch (IOException e) {
-           logger.error("Cannot send response.", e);
-        }
+        endpoint.postNetOperationToNIC(workRequestProxy);
     }
 }

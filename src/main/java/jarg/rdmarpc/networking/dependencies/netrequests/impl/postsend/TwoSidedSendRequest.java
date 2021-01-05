@@ -1,4 +1,4 @@
-package jarg.rdmarpc.rdma.netrequests.postsend;
+package jarg.rdmarpc.networking.dependencies.netrequests.impl.postsend;
 
 import com.ibm.disni.verbs.IbvMr;
 import com.ibm.disni.verbs.IbvSendWR;

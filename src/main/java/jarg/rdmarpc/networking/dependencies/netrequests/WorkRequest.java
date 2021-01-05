@@ -1,4 +1,4 @@
-package jarg.rdmarpc.rdma.netrequests;
+package jarg.rdmarpc.networking.dependencies.netrequests;
 
 import com.ibm.disni.verbs.IbvMr;
 import com.ibm.disni.verbs.IbvSge;
@@ -6,7 +6,7 @@ import com.ibm.disni.verbs.IbvSge;
 import java.util.LinkedList;
 
 /**
- * Abstract class defining an RDMA Work Request (WR), that will be
+ * Abstract class representing an RDMA Work Request (WR), that will be
  * sent to the Network Card and will be executed by it.
  */
 public abstract class WorkRequest{

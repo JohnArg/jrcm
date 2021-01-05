@@ -1,8 +1,8 @@
-package jarg.rdmarpc.rdma.netrequests.postrecv;
+package jarg.rdmarpc.networking.dependencies.netrequests.impl.postrecv;
 
 import com.ibm.disni.verbs.IbvMr;
 import com.ibm.disni.verbs.IbvRecvWR;
-import jarg.rdmarpc.rdma.netrequests.WorkRequest;
+import jarg.rdmarpc.networking.dependencies.netrequests.WorkRequest;
 
 /**
  * A wrapper for an RDMA Two-Sided Receive.

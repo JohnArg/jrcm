@@ -1,24 +1,24 @@
 package jarg.rdmarpc.rpc;
 
-import jarg.rdmarpc.rdma.connections.WorkRequestData;
+import jarg.rdmarpc.networking.dependencies.netrequests.WorkRequestProxy;
 import jarg.rdmarpc.rpc.exception.RpcDataSerializationException;
 
 /**
  * Abstract class that implements {@link RpcDataSerializer}, but only handles
- * getting and setting a {@link WorkRequestData}.
+ * getting and setting a {@link WorkRequestProxy}.
  */
 public abstract class AbstractDataSerializer implements RpcDataSerializer{
 
-    private WorkRequestData workRequestData;
+    private WorkRequestProxy workRequestData;
 
     public AbstractDataSerializer(){}
 
 
-    public WorkRequestData getWorkRequestData() {
+    public WorkRequestProxy getWorkRequestData() {
         return workRequestData;
     }
 
-    public void setWorkRequestData(WorkRequestData workRequestData) {
+    public void setWorkRequestData(WorkRequestProxy workRequestData) {
         this.workRequestData = workRequestData;
     }
 

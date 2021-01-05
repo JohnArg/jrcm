@@ -1,7 +1,7 @@
 package jarg.rdmarpc.rpc;
 
 
-import jarg.rdmarpc.rdma.connections.WorkRequestData;
+import jarg.rdmarpc.networking.dependencies.netrequests.WorkRequestProxy;
 import jarg.rdmarpc.rpc.exception.RpcDataSerializationException;
 
 import java.nio.ByteBuffer;
@@ -12,16 +12,16 @@ import java.nio.ByteBuffer;
 public class RpcPacket {
 
     private RpcPacketHeaders packetHeaders;             // the headers of the packet
-    private WorkRequestData workRequest;                // the RDMA WR associated with this packet
+    private WorkRequestProxy workRequest;                // the RDMA WR associated with this packet
 
 
-    public RpcPacket(WorkRequestData workRequest){
+    public RpcPacket(WorkRequestProxy workRequest){
         this.packetHeaders = new RpcPacketHeaders();
         this.workRequest = workRequest;
         this.packetHeaders.setWorkRequestData(workRequest);
     }
 
-    public RpcPacket(RpcPacketHeaders packetHeaders, WorkRequestData workRequest){
+    public RpcPacket(RpcPacketHeaders packetHeaders, WorkRequestProxy workRequest){
         this.packetHeaders = packetHeaders;
         this.workRequest = workRequest;
         this.packetHeaders.setWorkRequestData(workRequest);
@@ -60,7 +60,7 @@ public class RpcPacket {
      *   Getters/Setters
      ********************************************************* */
 
-    public WorkRequestData getWorkRequest() {
+    public WorkRequestProxy getWorkRequest() {
         return workRequest;
     }
 

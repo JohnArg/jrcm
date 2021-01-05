@@ -1,8 +1,8 @@
-package jarg.rdmarpc.rdma.netrequests.postsend;
+package jarg.rdmarpc.networking.dependencies.netrequests.impl.postsend;
 
 import com.ibm.disni.verbs.IbvMr;
 import com.ibm.disni.verbs.IbvSendWR;
-import jarg.rdmarpc.rdma.netrequests.WorkRequest;
+import jarg.rdmarpc.networking.dependencies.netrequests.WorkRequest;
 
 /**
  * An abstract wrapper for RDMA requests send via <code>postSend()</code>.

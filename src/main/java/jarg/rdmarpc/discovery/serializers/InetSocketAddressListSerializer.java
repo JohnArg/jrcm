@@ -1,9 +1,7 @@
 package jarg.rdmarpc.discovery.serializers;
 
 import jarg.rdmarpc.rpc.AbstractDataSerializer;
-import jarg.rdmarpc.rpc.RpcDataSerializer;
 import jarg.rdmarpc.rpc.exception.RpcDataSerializationException;
-import jarg.rdmarpc.rdma.connections.WorkRequestData;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;

@@ -3,10 +3,10 @@ package jarg.rdmarpc.discovery.service.invocators;
 import jarg.rdmarpc.discovery.RdmaDiscoveryApi;
 import jarg.rdmarpc.discovery.serializers.InetSocketAddressListSerializer;
 import jarg.rdmarpc.discovery.serializers.IntSerializer;
-import jarg.rdmarpc.rdma.connections.WorkRequestData;
+import jarg.rdmarpc.networking.dependencies.netrequests.WorkRequestProxy;
 import jarg.rdmarpc.rpc.AbstractThreadPoolInvocator;
 import jarg.rdmarpc.rpc.RpcPacket;
-import jarg.rdmarpc.rpc.SendResponseTask;
+import jarg.rdmarpc.discovery.service.SendResponseTask;
 import jarg.rdmarpc.rpc.exception.RpcDataSerializationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +35,7 @@ public class GetServerPortByIpApiInvocator extends AbstractThreadPoolInvocator {
     @Override
     public void invokeOperationTask(RpcPacket packet) {
         // Pass the packet's work request data to the serializer
-        WorkRequestData workRequestData = packet.getWorkRequest();
+        WorkRequestProxy workRequestData = packet.getWorkRequest();
         InetSocketAddressListSerializer serializer = new InetSocketAddressListSerializer();
         serializer.setWorkRequestData(workRequestData);
 
@@ -44,7 +44,7 @@ public class GetServerPortByIpApiInvocator extends AbstractThreadPoolInvocator {
             serializer.readFromWorkRequestBuffer();
             List<InetSocketAddress> addresses = serializer.getAddresses();
             // Free WR id, we have the objects we need
-            workRequestData.getEndpoint().freeUpWrID(workRequestData);
+            workRequestData.getEndpoint().getWorkRequestProxyProvider().releaseWorkRequest(workRequestData);
             // invoke the service's API
             int port = serviceApi.getServerPortByIp(addresses.get(0).getAddress());
             // get a serializer for the response and set the response to it
@@ -55,7 +55,7 @@ public class GetServerPortByIpApiInvocator extends AbstractThreadPoolInvocator {
             getWorkersExecutor().submit(responseTask);
         } catch (RpcDataSerializationException e) {
             // Free WR id
-            workRequestData.getEndpoint().freeUpWrID(workRequestData);
+            workRequestData.getEndpoint().getWorkRequestProxyProvider().releaseWorkRequest(workRequestData);
             // send the response to the caller in another task
             SendResponseTask responseTask = new SendResponseTask(packet, null, true);
             getWorkersExecutor().submit(responseTask);

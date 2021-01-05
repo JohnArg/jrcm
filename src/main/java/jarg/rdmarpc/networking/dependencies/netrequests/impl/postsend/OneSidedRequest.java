@@ -1,9 +1,8 @@
-package jarg.rdmarpc.rdma.netrequests.postsend;
+package jarg.rdmarpc.networking.dependencies.netrequests.impl.postsend;
 
 
 import com.ibm.disni.verbs.IbvMr;
 import com.ibm.disni.verbs.IbvSendWR;
-import jarg.rdmarpc.rdma.netrequests.RemoteLocation;
 
 /**
  * A wrapper for RDMA One-Sided Requests. The user has to specify

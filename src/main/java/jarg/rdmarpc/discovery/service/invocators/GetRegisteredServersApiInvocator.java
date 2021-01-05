@@ -3,9 +3,9 @@ package jarg.rdmarpc.discovery.service.invocators;
 import jarg.rdmarpc.discovery.serializers.InetSocketAddressListSerializer;
 import jarg.rdmarpc.rpc.AbstractThreadPoolInvocator;
 import jarg.rdmarpc.discovery.RdmaDiscoveryApi;
-import jarg.rdmarpc.rdma.connections.WorkRequestData;
+import jarg.rdmarpc.networking.dependencies.netrequests.WorkRequestProxy;
 import jarg.rdmarpc.rpc.RpcPacket;
-import jarg.rdmarpc.rpc.SendResponseTask;
+import jarg.rdmarpc.discovery.service.SendResponseTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,9 +32,9 @@ public class GetRegisteredServersApiInvocator extends AbstractThreadPoolInvocato
     @Override
     public void invokeOperationTask(RpcPacket packet) {
         // Get the packet's work request data
-        WorkRequestData workRequestData = packet.getWorkRequest();
+        WorkRequestProxy workRequestData = packet.getWorkRequest();
         // Free WR id, we have the objects we need
-        workRequestData.getEndpoint().freeUpWrID(workRequestData);
+        workRequestData.getEndpoint().getWorkRequestProxyProvider().releaseWorkRequest(workRequestData);
         // invoke the service's API
         Set<InetSocketAddress> previousMembers = serviceApi.getRegisteredServers();
         // get a serializer for the response and set the response to it

@@ -1,4 +1,4 @@
-package jarg.rdmarpc.rdma.netrequests;
+package jarg.rdmarpc.networking.dependencies.netrequests.impl.postsend;
 
 /**
  * Holds information about a remote memory location, that

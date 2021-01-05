@@ -1,8 +1,6 @@
 package jarg.rdmarpc.discovery.serializers;
 
-import jarg.rdmarpc.rdma.connections.WorkRequestData;
 import jarg.rdmarpc.rpc.AbstractDataSerializer;
-import jarg.rdmarpc.rpc.RpcDataSerializer;
 import jarg.rdmarpc.rpc.exception.RpcDataSerializationException;
 
 import java.nio.ByteBuffer;
