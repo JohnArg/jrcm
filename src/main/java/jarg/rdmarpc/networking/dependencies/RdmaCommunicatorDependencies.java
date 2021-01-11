@@ -23,47 +23,53 @@ public class RdmaCommunicatorDependencies {
         return bufferManager;
     }
 
-    public void setBufferManager(NetworkBufferManager bufferManager) {
+    public RdmaCommunicatorDependencies setBufferManager(NetworkBufferManager bufferManager) {
         this.bufferManager = bufferManager;
+        return this;
     }
 
     public AbstractSVCManager getSvcManager() {
         return svcManager;
     }
 
-    public void setSvcManager(AbstractSVCManager svcManager) {
+    public RdmaCommunicatorDependencies setSvcManager(AbstractSVCManager svcManager) {
         this.svcManager = svcManager;
+        return this;
     }
 
     public AbstractWorkRequestProxyProvider getProxyProvider() {
         return proxyProvider;
     }
 
-    public void setProxyProvider(AbstractWorkRequestProxyProvider proxyProvider) {
+    public RdmaCommunicatorDependencies setProxyProvider(AbstractWorkRequestProxyProvider proxyProvider) {
         this.proxyProvider = proxyProvider;
+        return this;
     }
 
     public AbstractWorkCompletionHandler getWorkCompletionHandler() {
         return workCompletionHandler;
     }
 
-    public void setWorkCompletionHandler(AbstractWorkCompletionHandler workCompletionHandler) {
+    public RdmaCommunicatorDependencies setWorkCompletionHandler(AbstractWorkCompletionHandler workCompletionHandler) {
         this.workCompletionHandler = workCompletionHandler;
+        return this;
     }
 
     public int getMaxWorkRequests() {
         return maxWorkRequests;
     }
 
-    public void setMaxWorkRequests(int maxWorkRequests) {
+    public RdmaCommunicatorDependencies setMaxWorkRequests(int maxWorkRequests) {
         this.maxWorkRequests = maxWorkRequests;
+        return this;
     }
 
     public int getMaxBufferSize() {
         return maxBufferSize;
     }
 
-    public void setMaxBufferSize(int maxBufferSize) {
+    public RdmaCommunicatorDependencies setMaxBufferSize(int maxBufferSize) {
         this.maxBufferSize = maxBufferSize;
+        return this;
     }
 }

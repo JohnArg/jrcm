@@ -12,6 +12,10 @@ public abstract  class AbstractWorkCompletionHandler implements WorkCompletionHa
 
     }
 
+    public AbstractWorkCompletionHandler(AbstractWorkRequestProxyProvider proxyProvider){
+        this.proxyProvider = proxyProvider;
+    }
+
     public AbstractWorkRequestProxyProvider getProxyProvider() {
         return proxyProvider;
     }

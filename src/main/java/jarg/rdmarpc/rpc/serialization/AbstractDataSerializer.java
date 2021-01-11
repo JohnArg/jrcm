@@ -1,4 +1,4 @@
-package jarg.rdmarpc.rpc;
+package jarg.rdmarpc.rpc.serialization;
 
 import jarg.rdmarpc.networking.dependencies.netrequests.WorkRequestProxy;
 import jarg.rdmarpc.rpc.exception.RpcDataSerializationException;
@@ -9,24 +9,27 @@ import jarg.rdmarpc.rpc.exception.RpcDataSerializationException;
  */
 public abstract class AbstractDataSerializer implements RpcDataSerializer{
 
-    private WorkRequestProxy workRequestData;
+    private WorkRequestProxy workRequestProxy;
 
-    public AbstractDataSerializer(){}
+    public AbstractDataSerializer(){};
 
-
-    public WorkRequestProxy getWorkRequestData() {
-        return workRequestData;
+    public AbstractDataSerializer(WorkRequestProxy workRequestProxy){
+        this.workRequestProxy = workRequestProxy;
     }
 
-    public void setWorkRequestData(WorkRequestProxy workRequestData) {
-        this.workRequestData = workRequestData;
+    public WorkRequestProxy getWorkRequestProxy() {
+        return workRequestProxy;
+    }
+
+    public void setWorkRequestProxy(WorkRequestProxy workRequestProxy) {
+        this.workRequestProxy = workRequestProxy;
     }
 
     /**
      * Throws an exception if the two serial versions are not compatible.
-     * @param remoteSerialVersion
-     * @param localSerialVersion
-     * @throws RpcDataSerializationException
+     * @param remoteSerialVersion   the serial version provided by the remote side.
+     * @param localSerialVersion    the local serial version.
+     * @throws RpcDataSerializationException thrown if the remote serial version is not compatible.
      */
     public void throwIfSerialVersionInvalid(long localSerialVersion, long remoteSerialVersion)
                                                             throws RpcDataSerializationException{

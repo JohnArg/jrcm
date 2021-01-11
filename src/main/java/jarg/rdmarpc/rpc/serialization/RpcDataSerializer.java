@@ -1,4 +1,4 @@
-package jarg.rdmarpc.rpc;
+package jarg.rdmarpc.rpc.serialization;
 
 import jarg.rdmarpc.rpc.exception.RpcDataSerializationException;
 

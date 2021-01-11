@@ -15,7 +15,7 @@
         <maven.dependency.plugin.version>2.10</maven.dependency.plugin.version>
         <maven.surefire>2.22.2</maven.surefire>
         <maven.failsafe>2.22.2</maven.failsafe>
-        <log4j.slf4j.version>2.13.3</log4j.slf4j.version>
+        <slf4j.version>1.7.30</slf4j.version>
         <fastutil.version>8.4.3</fastutil.version>
         <junit.version>5.7.0</junit.version>
     </properties>
@@ -35,9 +35,9 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
-            <version>${log4j.slf4j.version}</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

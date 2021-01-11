@@ -1,4 +1,6 @@
-package jarg.rdmarpc.rpc;
+package jarg.rdmarpc.rpc.invocation;
+
+import jarg.rdmarpc.rpc.packets.AbstractRpcPacket;
 
 import java.util.concurrent.ExecutorService;
 
@@ -20,7 +22,7 @@ public abstract class AbstractThreadPoolInvocator implements RpcOperationInvocat
      *               the operation.
      */
     @Override
-    public void invokeOperation(RpcPacket packet){
+    public void invokeOperation(AbstractRpcPacket packet){
         // submit task to a worker's pool
         workersExecutor.submit(() -> invokeOperationTask(packet));
     }
@@ -30,7 +32,7 @@ public abstract class AbstractThreadPoolInvocator implements RpcOperationInvocat
      * @param packet The packet which contains information necessary to invoke
      *               the operation.
      */
-    public abstract void invokeOperationTask(RpcPacket packet);
+    public abstract void invokeOperationTask(AbstractRpcPacket packet);
 
     public ExecutorService getWorkersExecutor() {
         return workersExecutor;

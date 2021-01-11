@@ -1,4 +1,4 @@
-package jarg.rdmarpc.rpc;
+package jarg.rdmarpc.rpc.packets;
 
 /**
  * Specifies whether the message to be sent or received is a request or a response.

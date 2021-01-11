@@ -12,7 +12,6 @@ import jarg.rdmarpc.networking.dependencies.netrequests.AbstractWorkRequestProxy
 import jarg.rdmarpc.networking.dependencies.netrequests.WorkCompletionHandler;
 import jarg.rdmarpc.networking.dependencies.netrequests.WorkRequestProxy;
 import jarg.rdmarpc.networking.dependencies.netrequests.WorkRequestProxyProvider;
-import jarg.rdmarpc.networking.dependencies.netrequests.types.WorkRequestType;
 import jarg.rdmarpc.networking.dependencies.svc.AbstractSVCManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

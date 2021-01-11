@@ -72,6 +72,7 @@ public class QueuedProxyProvider extends AbstractWorkRequestProxyProvider{
     public void releaseWorkRequest(WorkRequestProxy workRequestProxy) {
         if(workRequestProxy.getPostType().equals(PostedRequestType.SEND)) {
             synchronized (freePostSendWrIds){
+                workRequestProxy.getBuffer().clear();   // clear previous data
                 freePostSendWrIds.enqueue(workRequestProxy.getId());
                 // if the queue was empty, notify any blocked threads
                 if(freePostSendWrIds.size() == 1){
@@ -81,6 +82,7 @@ public class QueuedProxyProvider extends AbstractWorkRequestProxyProvider{
         }else if (workRequestProxy.getPostType().equals(PostedRequestType.RECEIVE)) {
             // now that this WR id is free for reuse, we can repost
             // that 'receive' request immediately to accept new data
+            workRequestProxy.getBuffer().clear();   // clear previous data
             getEndpoint().postNetOperationToNIC(workRequestProxy);
         }
     }
