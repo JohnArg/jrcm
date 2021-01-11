@@ -45,6 +45,10 @@ public abstract class AbstractWorkRequestProxyProvider implements WorkRequestPro
 
     @Override
     public WorkRequestProxy getWorkRequestProxyForWc(IbvWC workCompletionEvent){
+        if(workCompletionEvent == null){
+            return null;
+        }
+
         WorkRequestProxy proxy;
         int workRequestId = (int) workCompletionEvent.getWr_id();
         int operationCode = workCompletionEvent.getOpcode();
@@ -79,29 +83,3 @@ public abstract class AbstractWorkRequestProxyProvider implements WorkRequestPro
         return proxy;
     }
 }
-
-//    Compare to opcodes from com.ibm.disni.verbs.IbvWC.IbvWcOpcode
-// Then call the appropriate handlers for the events and free the Work Request id for reuse
-//if (wc.getStatus() == 5){
-//        throw new IOException("Unkown operation! wc.status " + wc.getStatus());
-//        } else if (wc.getStatus() != 0){
-//        throw new IOException("Faulty operation! wc.status " + wc.getStatus());
-//        }else{
-//        int workRequestId = (int) wc.getWr_id();
-//        // Completion for two-side receive operation
-//        if(wc.getOpcode() == 128){
-//        completionHandler.handleTwoSidedReceive(wc, this,
-//        receiveBuffers[(int) wc.getWr_id()]);
-//        }
-//        // Completion for two-side send operation
-//        else if(wc.getOpcode() == 0){
-//        completionHandler.handleTwoSidedSend(wc, this);
-//        }
-//        // Completion for one-sided write operation
-//        else if(wc.getOpcode() == 1){
-//        completionHandler.handleOneSidedWrite(wc, this);
-//        }
-//        // Completion for one-sided read operation
-//        else if(wc.getOpcode() == 2){
-//        completionHandler.handleOneSidedRead(wc, this);
-//        }

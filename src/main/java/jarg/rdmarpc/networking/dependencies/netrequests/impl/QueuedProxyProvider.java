@@ -2,6 +2,7 @@ package jarg.rdmarpc.networking.dependencies.netrequests.impl;
 
 import it.unimi.dsi.fastutil.ints.IntArrayFIFOQueue;
 import jarg.rdmarpc.networking.dependencies.netrequests.AbstractWorkRequestProxyProvider;
+import jarg.rdmarpc.networking.dependencies.netrequests.WorkRequest;
 import jarg.rdmarpc.networking.dependencies.netrequests.WorkRequestProxy;
 import jarg.rdmarpc.networking.dependencies.netrequests.WorkRequestProxyProvider;
 import jarg.rdmarpc.networking.dependencies.netrequests.types.PostedRequestType;
@@ -11,17 +12,22 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 
+import static jarg.rdmarpc.networking.dependencies.netrequests.types.WorkRequestType.TWO_SIDED_RECV;
+
 /**
  * An {@link WorkRequestProxyProvider} that maintains an internal queue of available postSend requests.
  * PostRecv requests need not be managed in a queue, as they are all pre-posted before communications and reused.
  */
 public class QueuedProxyProvider extends AbstractWorkRequestProxyProvider{
     private final Logger logger = LoggerFactory.getLogger(QueuedProxyProvider.class);
+
     private final IntArrayFIFOQueue freePostSendWrIds;  // available Work Request ids for the postSend queue
+    private int maxWorkRequests;
 
     // Use to inject this as a dependency. Requires setting this object's dependencies with setters later.
     public QueuedProxyProvider(int maxWorkRequests){
         super();
+        this.maxWorkRequests = maxWorkRequests;
         this.freePostSendWrIds = new IntArrayFIFOQueue(maxWorkRequests);
         for(int i = 0; i < maxWorkRequests; i++){
             freePostSendWrIds.enqueue(i);
@@ -30,26 +36,34 @@ public class QueuedProxyProvider extends AbstractWorkRequestProxyProvider{
 
     @Override
     public WorkRequestProxy getPostSendRequestBlocking(WorkRequestType requestType) {
-        WorkRequestProxy proxy = null;
-        int workRequestId = -1;
+        // prevent errors
+        if((maxWorkRequests == 0) || (requestType == null)
+                || (getBufferManager() == null) || (requestType == TWO_SIDED_RECV)){
+            return null;
+        }
+        int workRequestId;
         // if there are no available Work Request ids, block until there are
         synchronized (freePostSendWrIds){
             while(freePostSendWrIds.isEmpty()){
                 try {
                     freePostSendWrIds.wait();
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                   logger.error("Proxy provider interrupted on blocking call.", e);
                 }
             }
             workRequestId = freePostSendWrIds.dequeueInt();
         }
         ByteBuffer buffer = getBufferManager().getWorkRequestBuffer(requestType, workRequestId);
-        proxy = new WorkRequestProxy(workRequestId, PostedRequestType.SEND, requestType, buffer, getEndpoint());
-        return proxy;
+        return new WorkRequestProxy(workRequestId, PostedRequestType.SEND, requestType, buffer, getEndpoint());
     }
 
     @Override
     public WorkRequestProxy getPostSendRequestNow(WorkRequestType requestType) {
+        // prevent errors
+        if((maxWorkRequests == 0) || (requestType == null)
+                || (getBufferManager() == null) || (requestType == TWO_SIDED_RECV)){
+            return null;
+        }
         WorkRequestProxy proxy = null;
         int workRequestId = -1;
 
@@ -70,6 +84,10 @@ public class QueuedProxyProvider extends AbstractWorkRequestProxyProvider{
 
     @Override
     public void releaseWorkRequest(WorkRequestProxy workRequestProxy) {
+        // prevent errors
+        if((maxWorkRequests == 0) || (workRequestProxy == null) || (getBufferManager() == null)){
+            return;
+        }
         if(workRequestProxy.getPostType().equals(PostedRequestType.SEND)) {
             synchronized (freePostSendWrIds){
                 workRequestProxy.getBuffer().clear();   // clear previous data
