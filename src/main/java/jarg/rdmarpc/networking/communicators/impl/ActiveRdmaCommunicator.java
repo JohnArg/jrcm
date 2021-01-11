@@ -8,10 +8,7 @@ import com.ibm.disni.verbs.RdmaCmId;
 import jarg.rdmarpc.networking.communicators.RdmaCommunicator;
 import jarg.rdmarpc.networking.dependencies.RdmaCommunicatorDependencies;
 import jarg.rdmarpc.networking.dependencies.netbuffers.NetworkBufferManager;
-import jarg.rdmarpc.networking.dependencies.netrequests.AbstractWorkRequestProxyProvider;
-import jarg.rdmarpc.networking.dependencies.netrequests.WorkCompletionHandler;
-import jarg.rdmarpc.networking.dependencies.netrequests.WorkRequestProxy;
-import jarg.rdmarpc.networking.dependencies.netrequests.WorkRequestProxyProvider;
+import jarg.rdmarpc.networking.dependencies.netrequests.*;
 import jarg.rdmarpc.networking.dependencies.svc.AbstractSVCManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +41,7 @@ public class ActiveRdmaCommunicator extends RdmaActiveEndpoint implements RdmaCo
     private NetworkBufferManager bufferManager;
     private AbstractSVCManager svcManager;
     private AbstractWorkRequestProxyProvider proxyProvider;
-    private WorkCompletionHandler workCompletionHandler;
+    private AbstractWorkCompletionHandler workCompletionHandler;
 
     public ActiveRdmaCommunicator(RdmaActiveEndpointGroup<? extends ActiveRdmaCommunicator> group,
                                   RdmaCmId idPriv, boolean serverSide,
@@ -74,6 +71,8 @@ public class ActiveRdmaCommunicator extends RdmaActiveEndpoint implements RdmaCo
         // pass proxy provider dependencies
         proxyProvider.setBufferManager(bufferManager);
         proxyProvider.setEndpoint(this);
+        // pass proxy provider to work completion handler
+        workCompletionHandler.setProxyProvider(proxyProvider);
     }
 
     /**
