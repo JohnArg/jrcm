@@ -4,9 +4,6 @@ import jarg.rdmarpc.networking.dependencies.netbuffers.NetworkBufferManager;
 import jarg.rdmarpc.networking.dependencies.netbuffers.impl.OneSidedBufferManager;
 import jarg.rdmarpc.networking.dependencies.netbuffers.impl.TwoSidedBufferManager;
 import jarg.rdmarpc.networking.dependencies.netrequests.WorkRequestProxy;
-import static jarg.rdmarpc.networking.dependencies.netrequests.types.WorkRequestType.*;
-import static org.junit.jupiter.api.Assertions.*;
-
 import jarg.rdmarpc.networking.dependencies.netrequests.types.PostedRequestType;
 import jarg.rdmarpc.networking.dependencies.netrequests.types.WorkRequestType;
 import org.junit.jupiter.api.DisplayName;
@@ -17,9 +14,11 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.nio.ByteBuffer;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
+
+import static jarg.rdmarpc.networking.dependencies.netrequests.types.WorkRequestType.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Tests for QueuedProxyProvider")
 public class QueuedProxyProviderTest {

@@ -1,10 +1,10 @@
 package jarg.rdmarpc.networking.dependencies.netrequests;
 
 import com.ibm.disni.verbs.IbvWC;
-import jarg.rdmarpc.networking.communicators.RdmaCommunicator;
 import jarg.rdmarpc.networking.communicators.impl.ActiveRdmaCommunicator;
-import jarg.rdmarpc.networking.dependencies.netbuffers.NetworkBufferManager;
 import jarg.rdmarpc.networking.dependencies.netrequests.types.WorkRequestType;
+
+import static jarg.rdmarpc.networking.dependencies.netrequests.types.WorkRequestType.*;
 
 /**
  * Provides {@link WorkRequestProxy WorkRequestProxies} to applications,
@@ -18,9 +18,8 @@ public interface WorkRequestProxyProvider {
      * Work Request to the NIC.
      * It will look for an available Work Request (WR) id for postSend-type
      * operations and if it finds one, it returns a {@link WorkRequestProxy}
-     * that contains information that the application needs about
-     * the WR. If it doesn't find an available WR id, it will block
-     * until there is one.
+     * that contains information about the WR.
+     * If it doesn't find an available WR id, it will block until there is one.
      * </p>
      * <p>
      * Once a {@link WorkRequestProxy} is returned, the application can
@@ -44,8 +43,8 @@ public interface WorkRequestProxyProvider {
      * Work Request to the NIC.
      * It will look for an available Work Request (WR) id for postSend-type
      * operations and if it finds one, it returns a {@link WorkRequestProxy}
-     * that contains information that the application needs about
-     * the WR. If it doesn't find an available WR id, it will return null
+     * that contains information about the WR.
+     * If it doesn't find an available WR id, it will return null
      * and will not block.
      * </p>
      * <p>
@@ -91,4 +90,46 @@ public interface WorkRequestProxyProvider {
      * completion event fired.
      */
     WorkRequestProxy getWorkRequestProxyForWc(IbvWC workCompletionEvent);
+
+    /**
+     * Helper method to associate a {@link WorkRequestType} with an
+     * integer operation code used in Work Completion Events.
+     * @param type the type of Work Request.
+     * @return the Work Completion operation code.
+     */
+    default int getWcOperationCodeForWorkRequest(WorkRequestType type){
+        switch (type){
+            case TWO_SIDED_SEND_SIGNALED:
+                return IbvWC.IbvWcOpcode.IBV_WC_SEND.getOpcode();
+            case TWO_SIDED_RECV:
+                return IbvWC.IbvWcOpcode.IBV_WC_RECV.getOpcode();
+            case ONE_SIDED_WRITE_SIGNALED:
+                return IbvWC.IbvWcOpcode.IBV_WC_RDMA_WRITE.getOpcode();
+            case ONE_SIDED_READ_SIGNALED:
+                return IbvWC.IbvWcOpcode.IBV_WC_RDMA_READ.getOpcode();
+        }
+        return -1;
+    }
+
+    /**
+     * Helper method to associate an integer operation code used in
+     * Work Completion Events with a {@link WorkRequestType}.
+     * @param wcOpcode the Work Completion operation code.
+     * @return the type of Work Request.
+     */
+    default WorkRequestType getWorkRequestTypeForWcOperationCode(int wcOpcode){
+        if(wcOpcode == IbvWC.IbvWcOpcode.IBV_WC_SEND.getOpcode()){
+            return TWO_SIDED_SEND_SIGNALED;
+        }
+        if(wcOpcode == IbvWC.IbvWcOpcode.IBV_WC_RECV.getOpcode()){
+            return TWO_SIDED_RECV;
+        }
+        if(wcOpcode == IbvWC.IbvWcOpcode.IBV_WC_RDMA_WRITE.getOpcode()){
+            return ONE_SIDED_WRITE_SIGNALED;
+        }
+        if(wcOpcode == IbvWC.IbvWcOpcode.IBV_WC_RDMA_READ.getOpcode()){
+            return ONE_SIDED_READ_SIGNALED;
+        }
+        return null;
+    }
 }

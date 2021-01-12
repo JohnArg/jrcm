@@ -4,7 +4,7 @@ import jarg.rdmarpc.networking.dependencies.netrequests.WorkRequestProxy;
 import jarg.rdmarpc.networking.dependencies.netrequests.WorkRequestProxyProvider;
 
 /**
- * Posts networking operations to the Network Interface Card.
+ * Posts networking operations to the Network Interface Controller.
  */
 public interface RdmaCommunicator {
 

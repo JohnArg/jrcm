@@ -10,30 +10,34 @@ import jarg.rdmarpc.networking.dependencies.RdmaCommunicatorDependencies;
 import jarg.rdmarpc.networking.dependencies.netbuffers.NetworkBufferManager;
 import jarg.rdmarpc.networking.dependencies.netrequests.*;
 import jarg.rdmarpc.networking.dependencies.svc.AbstractSVCManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
- * This communicator establishes a channel of RDMA communications with remote machines.
- * The Communicator has the following jobs:
+ * This {@link RdmaCommunicator} establishes a channel of RDMA communications with remote machines.
+ * It the following jobs:
  * <ul>
- *     <li>It transmits and receives data using the RDMA technology.</li>
  *     <li>It performs all necessary preparations before staring RDMA communications,
- *          including memory allocations, memory registration to the Network Interface Card
+ *          including memory allocations, memory registration to the Network Interface Controller
  *          (NIC) and SVC creation <i>(see IBM's jverbs)</i>.
  *     </li>
+ *     <li>It transmits and receives data using the RDMA technology.</li>
  *     <li>In order to transmit and receive data, RDMA Work Requests (WRs) are sent to the
- *          NIC. The endpoint creates, stores, submits to the NIC and manages the lifecycle
- *          of such WRs. Therefore it also has to be able to identify the WRs and associate
+ *          NIC. The communicator creates, stores, submits to the NIC and manages the lifecycle
+ *          of such WRs. Therefore, it also has to be able to identify the WRs and associate
  *          them with events, data buffers and SVCs.
  *     </li>
  * </ul>
+ *<p>
+ * This type of {@link RdmaCommunicator} is also an {@link RdmaActiveEndpoint}, which means that
+ * it receives notifications about RDMA Work Request Completion Events through a
+ * {@link RdmaActiveEndpointGroup}.
+ * Then the communicator can decide what to do with these notifications by invoking a
+ * {@link WorkCompletionHandler} strategy.
+ * </p>
  */
 public class ActiveRdmaCommunicator extends RdmaActiveEndpoint implements RdmaCommunicator {
-    private final static Logger logger = LoggerFactory.getLogger(ActiveRdmaCommunicator.class);
 
     private IbvMr registeredMemoryRegion;
     // Injected dependencies --------------------------
@@ -76,7 +80,7 @@ public class ActiveRdmaCommunicator extends RdmaActiveEndpoint implements RdmaCo
     }
 
     /**
-     * When a Work Completion event is ready, call the {@link WorkCompletionHandler} dependency
+     * When a Work Completion event is ready, call the {@link WorkCompletionHandler} strategy
      * to handle the event.
      * @param wc the Work Completion event dispatched to this Endpoint.
      * @throws IOException

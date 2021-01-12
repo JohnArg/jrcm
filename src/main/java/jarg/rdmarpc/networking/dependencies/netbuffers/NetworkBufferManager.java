@@ -13,10 +13,8 @@ public interface NetworkBufferManager {
 
     /**
      * Allocates buffers that will be used during communications.
-     * @return true for success, false otherwise
      */
     void allocateCommunicationBuffers();
-
 
     /**
      * <p>

@@ -23,6 +23,35 @@ public abstract class AbstractWorkRequestProxyProvider implements WorkRequestPro
     public AbstractWorkRequestProxyProvider() {
     }
 
+    @Override
+    public WorkRequestProxy getWorkRequestProxyForWc(IbvWC workCompletionEvent){
+        if(workCompletionEvent == null){
+            return null;
+        }
+        // extract info from event
+        WorkRequestProxy proxy;
+        int workRequestId = (int) workCompletionEvent.getWr_id();
+        int operationCode = workCompletionEvent.getOpcode();
+        // identify request type
+        WorkRequestType workRequestType;
+        workRequestType = getWorkRequestTypeForWcOperationCode(operationCode);
+        if(workRequestType == null){
+            return null;
+        }
+        // identify posted request type
+        PostedRequestType postedRequestType;
+        if(workRequestType.equals(TWO_SIDED_RECV)){
+            postedRequestType = RECEIVE;
+        }else{
+            postedRequestType = SEND;
+        }
+        // get request buffer
+        ByteBuffer requestBuffer = bufferManager.getWorkRequestBuffer(workRequestType, workRequestId);
+        // time to construct the proxy
+        proxy = new WorkRequestProxy(workRequestId, postedRequestType, workRequestType, requestBuffer, endpoint);
+        return proxy;
+    }
+
     /* ***************************************************************
      *   Getters/Setters
      * ***************************************************************/
@@ -41,45 +70,5 @@ public abstract class AbstractWorkRequestProxyProvider implements WorkRequestPro
 
     public void setEndpoint(RdmaCommunicator endpoint) {
         this.endpoint = endpoint;
-    }
-
-    @Override
-    public WorkRequestProxy getWorkRequestProxyForWc(IbvWC workCompletionEvent){
-        if(workCompletionEvent == null){
-            return null;
-        }
-
-        WorkRequestProxy proxy;
-        int workRequestId = (int) workCompletionEvent.getWr_id();
-        int operationCode = workCompletionEvent.getOpcode();
-        WorkRequestType workRequestType;
-        PostedRequestType postedRequestType;
-
-        // identify request type
-        switch(operationCode){
-            case 128:
-                workRequestType = TWO_SIDED_RECV;
-                postedRequestType = RECEIVE;
-                break;
-            case 0 :
-                workRequestType = TWO_SIDED_SEND_SIGNALED;
-                postedRequestType = SEND;
-                break;
-            case 1:
-                workRequestType = ONE_SIDED_WRITE_SIGNALED;
-                postedRequestType = SEND;
-                break;
-            case 2 :
-                workRequestType = ONE_SIDED_READ_SIGNALED;
-                postedRequestType = SEND;
-                break;
-            default:
-                return null;
-        }
-        // get request buffer
-        ByteBuffer requestBuffer = bufferManager.getWorkRequestBuffer(workRequestType, workRequestId);
-        // time to construct the proxy
-        proxy = new WorkRequestProxy(workRequestId, postedRequestType, workRequestType, requestBuffer, endpoint);
-        return proxy;
     }
 }

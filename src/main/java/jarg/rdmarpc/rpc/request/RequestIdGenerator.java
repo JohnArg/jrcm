@@ -4,6 +4,7 @@ package jarg.rdmarpc.rpc.request;
  * Generates unique request Ids, in order to associate requests
  * with responses.
  */
+@FunctionalInterface
 public interface RequestIdGenerator<T> {
 
     /**

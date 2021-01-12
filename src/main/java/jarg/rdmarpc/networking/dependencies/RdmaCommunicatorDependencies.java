@@ -7,7 +7,7 @@ import jarg.rdmarpc.networking.dependencies.netrequests.AbstractWorkRequestProxy
 import jarg.rdmarpc.networking.dependencies.svc.AbstractSVCManager;
 
 /**
- * Will hold the dependencies that will be passed to an {@link RdmaCommunicator}.
+ * Dependencies that will be passed to an {@link RdmaCommunicator}.
  */
 public class RdmaCommunicatorDependencies {
     private NetworkBufferManager bufferManager;
