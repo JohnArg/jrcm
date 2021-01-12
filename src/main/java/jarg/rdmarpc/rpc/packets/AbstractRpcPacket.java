@@ -19,8 +19,10 @@ public abstract class AbstractRpcPacket {
      * Writes the packet's information to the network request's buffer.
      * Requires a payload serializer to be provided.
      * @param payloadSerializer will serialize payload data to the network request's buffer.
+     * @throws RpcDataSerializationException thrown if there is an error during serialization.
      */
-    public abstract void writeToWorkRequestBuffer(RpcDataSerializer payloadSerializer);
+    public abstract void writeToWorkRequestBuffer(RpcDataSerializer payloadSerializer)
+            throws RpcDataSerializationException;
 
     /**
      * Reads the packet header data from the network request buffer into this packet.

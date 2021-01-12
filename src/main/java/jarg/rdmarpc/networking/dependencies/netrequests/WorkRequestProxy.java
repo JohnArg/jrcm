@@ -12,7 +12,6 @@ public class WorkRequestProxy {
     private WorkRequestType workRequestType;
     private ByteBuffer buffer;
     private RdmaCommunicator endpoint;
-    private boolean isValid;                // used as a "guard" to prevent accessing data when invalidated
 
     public WorkRequestProxy(int id, PostedRequestType postType,
                             WorkRequestType workRequestType, ByteBuffer buffer, RdmaCommunicator endpoint) {
@@ -21,56 +20,34 @@ public class WorkRequestProxy {
         this.workRequestType = workRequestType;
         this.buffer = buffer;
         this.endpoint = endpoint;
-        this.isValid = true;
     }
 
 
     public int getId() {
-        if(!isValid){
-            return -1;
-        }
         return id;
     }
 
     public ByteBuffer getBuffer() {
-        if(!isValid){
-            return null;
-        }
         return buffer;
     }
 
     public RdmaCommunicator getEndpoint() {
-        if(!isValid){
-            return null;
-        }
         return endpoint;
     }
 
     public PostedRequestType getPostType() {
-        if(!isValid){
-            return null;
-        }
         return postType;
     }
 
     public WorkRequestType getWorkRequestType() {
-        if(!isValid){
-            return null;
-        }
         return workRequestType;
-    }
-
-    public boolean isValid() {
-        return isValid;
     }
 
     /**
      * Releases the Work Request associated with this proxy, so that it
-     * can be reused. After this operation, the proxy becomes invalid
-     * and its internal data should not be used.
+     * can be reused.
      */
     public void releaseWorkRequest(){
-        isValid = false;    // invalidate this object
         endpoint.getWorkRequestProxyProvider().releaseWorkRequest(this);
     }
 }

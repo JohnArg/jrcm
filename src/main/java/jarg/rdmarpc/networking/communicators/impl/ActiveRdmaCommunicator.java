@@ -103,8 +103,6 @@ public class ActiveRdmaCommunicator extends RdmaActiveEndpoint implements RdmaCo
     @Override
     public void close() throws IOException, InterruptedException {
         super.close();
-        // deregister the memory for communications
-        deregisterMemory(registeredMemoryRegion);
     }
 
     @Override
@@ -116,6 +114,7 @@ public class ActiveRdmaCommunicator extends RdmaActiveEndpoint implements RdmaCo
     public WorkRequestProxyProvider getWorkRequestProxyProvider() {
         return proxyProvider;
     }
+
 
     public RdmaCommunicatorDependencies getDependencies() {
         return dependencies;
