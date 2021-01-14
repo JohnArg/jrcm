@@ -50,4 +50,11 @@ public class WorkRequestProxy {
     public void releaseWorkRequest(){
         endpoint.getWorkRequestProxyProvider().releaseWorkRequest(this);
     }
+
+    /**
+     * Convenience method for posting this Work Request to the NIC.
+     */
+    public void post(){
+        endpoint.postNetOperationToNIC(this);
+    }
 }
