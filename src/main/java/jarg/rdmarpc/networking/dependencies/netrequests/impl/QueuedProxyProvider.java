@@ -39,7 +39,7 @@ public class QueuedProxyProvider extends AbstractWorkRequestProxyProvider{
 
     @Override
     public WorkRequestProxy getPostSendRequestBlocking(WorkRequestType requestType) {
-        // prevent errorsq
+        // prevent errors
         if((maxWorkRequests == 0) || (requestType == null)
                 || (getBufferManager() == null) || (requestType == TWO_SIDED_RECV)){
             return null;
