@@ -13,6 +13,8 @@ public class WorkRequestProxy {
     private ByteBuffer buffer;
     private RdmaCommunicator endpoint;
 
+    public WorkRequestProxy(){}
+
     public WorkRequestProxy(int id, PostedRequestType postType,
                             WorkRequestType workRequestType, ByteBuffer buffer, RdmaCommunicator endpoint) {
         this.id = id;
@@ -41,6 +43,31 @@ public class WorkRequestProxy {
 
     public WorkRequestType getWorkRequestType() {
         return workRequestType;
+    }
+
+    public WorkRequestProxy setId(int id) {
+        this.id = id;
+        return this;
+    }
+
+    public WorkRequestProxy setPostType(PostedRequestType postType) {
+        this.postType = postType;
+        return this;
+    }
+
+    public WorkRequestProxy setWorkRequestType(WorkRequestType workRequestType) {
+        this.workRequestType = workRequestType;
+        return this;
+    }
+
+    public WorkRequestProxy setBuffer(ByteBuffer buffer) {
+        this.buffer = buffer;
+        return this;
+    }
+
+    public WorkRequestProxy setEndpoint(RdmaCommunicator endpoint) {
+        this.endpoint = endpoint;
+        return this;
     }
 
     /**

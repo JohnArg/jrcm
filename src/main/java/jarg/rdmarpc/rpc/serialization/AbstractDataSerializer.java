@@ -9,7 +9,7 @@ import jarg.rdmarpc.rpc.exception.RpcDataSerializationException;
  */
 public abstract class AbstractDataSerializer implements RpcDataSerializer{
 
-    private WorkRequestProxy workRequestProxy;
+    protected WorkRequestProxy workRequestProxy;
 
     public AbstractDataSerializer(){};
 

@@ -9,7 +9,7 @@ import jarg.rdmarpc.rpc.serialization.RpcDataSerializer;
  */
 public abstract class AbstractRpcPacket {
 
-    private WorkRequestProxy workRequestProxy;                // the RDMA WR associated with this packet
+    protected WorkRequestProxy workRequestProxy;                // the RDMA WR associated with this packet
 
     public AbstractRpcPacket(WorkRequestProxy workRequestProxy) {
         this.workRequestProxy = workRequestProxy;

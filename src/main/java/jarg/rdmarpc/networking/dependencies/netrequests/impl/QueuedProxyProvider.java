@@ -23,20 +23,23 @@ public class QueuedProxyProvider extends AbstractWorkRequestProxyProvider{
 
     private final IntArrayFIFOQueue freePostSendWrIds;  // available Work Request ids for the postSend queue
     private int maxWorkRequests;
+    private WorkRequestProxy[] workRequestProxies;      // pre-created, cached and reused WR proxies
 
     // Use to inject this as a dependency. Requires setting this object's dependencies with setters later.
     public QueuedProxyProvider(int maxWorkRequests){
         super();
         this.maxWorkRequests = maxWorkRequests;
         this.freePostSendWrIds = new IntArrayFIFOQueue(maxWorkRequests);
+        workRequestProxies = new WorkRequestProxy[maxWorkRequests];
         for(int i = 0; i < maxWorkRequests; i++){
             freePostSendWrIds.enqueue(i);
+            workRequestProxies[i] = new WorkRequestProxy();
         }
     };
 
     @Override
     public WorkRequestProxy getPostSendRequestBlocking(WorkRequestType requestType) {
-        // prevent errors
+        // prevent errorsq
         if((maxWorkRequests == 0) || (requestType == null)
                 || (getBufferManager() == null) || (requestType == TWO_SIDED_RECV)){
             return null;
@@ -54,7 +57,10 @@ public class QueuedProxyProvider extends AbstractWorkRequestProxyProvider{
             workRequestId = freePostSendWrIds.dequeueInt();
         }
         ByteBuffer buffer = getBufferManager().getWorkRequestBuffer(requestType, workRequestId);
-        return new WorkRequestProxy(workRequestId, PostedRequestType.SEND, requestType, buffer, getEndpoint());
+        WorkRequestProxy proxy = workRequestProxies[workRequestId];
+        proxy.setId(workRequestId).setPostType(PostedRequestType.SEND).setWorkRequestType(requestType)
+                .setBuffer(buffer).setEndpoint(getEndpoint());
+        return proxy;
     }
 
     @Override
@@ -77,7 +83,9 @@ public class QueuedProxyProvider extends AbstractWorkRequestProxyProvider{
         ByteBuffer buffer;
         if (workRequestId > -1) {
             buffer =  getBufferManager().getWorkRequestBuffer(requestType, workRequestId);
-            proxy = new WorkRequestProxy(workRequestId, PostedRequestType.SEND, requestType, buffer, getEndpoint());
+            proxy = workRequestProxies[workRequestId];
+            proxy.setId(workRequestId).setPostType(PostedRequestType.SEND).setWorkRequestType(requestType)
+                    .setBuffer(buffer).setEndpoint(getEndpoint());
         }
         return proxy;
     }
