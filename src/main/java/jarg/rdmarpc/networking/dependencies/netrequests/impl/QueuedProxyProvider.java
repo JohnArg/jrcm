@@ -1,5 +1,7 @@
 package jarg.rdmarpc.networking.dependencies.netrequests.impl;
 
+import com.ibm.disni.RdmaActiveEndpoint;
+import com.ibm.disni.RdmaEndpoint;
 import it.unimi.dsi.fastutil.ints.IntArrayFIFOQueue;
 import jarg.rdmarpc.networking.dependencies.netrequests.AbstractWorkRequestProxyProvider;
 import jarg.rdmarpc.networking.dependencies.netrequests.WorkRequest;
@@ -109,7 +111,10 @@ public class QueuedProxyProvider extends AbstractWorkRequestProxyProvider{
             // now that this WR id is free for reuse, we can repost
             // that 'receive' request immediately to accept new data
             workRequestProxy.getBuffer().clear();   // clear previous data
-            getEndpoint().postNetOperationToNIC(workRequestProxy);
+            RdmaEndpoint endpoint = (RdmaEndpoint) getEndpoint();
+            if((!endpoint.isClosed()) && endpoint.getQp().isOpen()) {
+                getEndpoint().postNetOperationToNIC(workRequestProxy);
+            }
         }
     }
 }
