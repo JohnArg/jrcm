@@ -11,7 +11,7 @@ public class WorkRequestProxy {
     private PostedRequestType postType;
     private WorkRequestType workRequestType;
     private ByteBuffer buffer;
-    private RdmaCommunicator endpoint;
+    private RdmaCommunicator rdmaCommunicator;
 
     public WorkRequestProxy(){}
 
@@ -21,7 +21,7 @@ public class WorkRequestProxy {
         this.postType = postType;
         this.workRequestType = workRequestType;
         this.buffer = buffer;
-        this.endpoint = endpoint;
+        this.rdmaCommunicator = endpoint;
     }
 
 
@@ -33,8 +33,8 @@ public class WorkRequestProxy {
         return buffer;
     }
 
-    public RdmaCommunicator getEndpoint() {
-        return endpoint;
+    public RdmaCommunicator getRdmaCommunicator() {
+        return rdmaCommunicator;
     }
 
     public PostedRequestType getPostType() {
@@ -65,8 +65,8 @@ public class WorkRequestProxy {
         return this;
     }
 
-    public WorkRequestProxy setEndpoint(RdmaCommunicator endpoint) {
-        this.endpoint = endpoint;
+    public WorkRequestProxy setRdmaCommunicator(RdmaCommunicator rdmaCommunicator) {
+        this.rdmaCommunicator = rdmaCommunicator;
         return this;
     }
 
@@ -75,13 +75,14 @@ public class WorkRequestProxy {
      * can be reused.
      */
     public void releaseWorkRequest(){
-        endpoint.getWorkRequestProxyProvider().releaseWorkRequest(this);
+        rdmaCommunicator.getWorkRequestProxyProvider().releaseWorkRequest(this);
     }
 
     /**
      * Convenience method for posting this Work Request to the NIC.
      */
     public void post(){
-        endpoint.postNetOperationToNIC(this);
+        rdmaCommunicator.postNetOperationToNIC(this);
     }
+
 }

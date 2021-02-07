@@ -6,21 +6,21 @@ package jarg.rdmarpc.networking.dependencies.netrequests;
 public abstract  class AbstractWorkCompletionHandler implements WorkCompletionHandler{
 
     // dependencies ----------------------
-    private AbstractWorkRequestProxyProvider proxyProvider;
+    protected WorkRequestProxyProvider proxyProvider;
 
     public AbstractWorkCompletionHandler(){
 
     }
 
-    public AbstractWorkCompletionHandler(AbstractWorkRequestProxyProvider proxyProvider){
+    public AbstractWorkCompletionHandler(WorkRequestProxyProvider proxyProvider){
         this.proxyProvider = proxyProvider;
     }
 
-    public AbstractWorkRequestProxyProvider getProxyProvider() {
+    public WorkRequestProxyProvider getProxyProvider() {
         return proxyProvider;
     }
 
-    public void setProxyProvider(AbstractWorkRequestProxyProvider proxyProvider) {
+    public void setProxyProvider(WorkRequestProxyProvider proxyProvider) {
         this.proxyProvider = proxyProvider;
     }
 }

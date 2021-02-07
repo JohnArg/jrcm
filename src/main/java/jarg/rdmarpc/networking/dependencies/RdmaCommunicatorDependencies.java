@@ -3,7 +3,7 @@ package jarg.rdmarpc.networking.dependencies;
 import jarg.rdmarpc.networking.communicators.RdmaCommunicator;
 import jarg.rdmarpc.networking.dependencies.netbuffers.NetworkBufferManager;
 import jarg.rdmarpc.networking.dependencies.netrequests.AbstractWorkCompletionHandler;
-import jarg.rdmarpc.networking.dependencies.netrequests.AbstractWorkRequestProxyProvider;
+import jarg.rdmarpc.networking.dependencies.netrequests.WorkRequestProxyProvider;
 import jarg.rdmarpc.networking.dependencies.svc.AbstractSVCManager;
 
 /**
@@ -12,7 +12,7 @@ import jarg.rdmarpc.networking.dependencies.svc.AbstractSVCManager;
 public class RdmaCommunicatorDependencies {
     private NetworkBufferManager bufferManager;
     private AbstractSVCManager svcManager;
-    private AbstractWorkRequestProxyProvider proxyProvider;
+    private WorkRequestProxyProvider proxyProvider;
     private AbstractWorkCompletionHandler workCompletionHandler;
     private int maxWorkRequests;
     private int maxBufferSize;
@@ -37,11 +37,11 @@ public class RdmaCommunicatorDependencies {
         return this;
     }
 
-    public AbstractWorkRequestProxyProvider getProxyProvider() {
+    public WorkRequestProxyProvider getProxyProvider() {
         return proxyProvider;
     }
 
-    public RdmaCommunicatorDependencies setProxyProvider(AbstractWorkRequestProxyProvider proxyProvider) {
+    public RdmaCommunicatorDependencies setProxyProvider(WorkRequestProxyProvider proxyProvider) {
         this.proxyProvider = proxyProvider;
         return this;
     }

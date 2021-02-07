@@ -1,5 +1,6 @@
 package jarg.rdmarpc.networking.dependencies.netrequests.impl;
 
+import com.ibm.disni.verbs.IbvWC;
 import jarg.rdmarpc.networking.dependencies.netbuffers.NetworkBufferManager;
 import jarg.rdmarpc.networking.dependencies.netbuffers.impl.OneSidedBufferManager;
 import jarg.rdmarpc.networking.dependencies.netbuffers.impl.TwoSidedBufferManager;
@@ -87,7 +88,7 @@ public class QueuedProxyProviderTest {
                 assertNotNull(expectedBuffer);
                 assertNotNull(actualBuffer);
                 assertEquals(expectedBuffer, actualBuffer);
-                assertNull(proxy.getEndpoint());
+                assertNull(proxy.getRdmaCommunicator());
                 assertEquals(requestType, proxy.getWorkRequestType());
                 assertEquals(PostedRequestType.SEND, proxy.getPostType());
             }
@@ -118,7 +119,7 @@ public class QueuedProxyProviderTest {
             assertNotNull(expectedBuffer);
             assertNotNull(actualBuffer);
             assertEquals(expectedBuffer, actualBuffer);
-            assertNull(proxy.getEndpoint());
+            assertNull(proxy.getRdmaCommunicator());
             assertEquals(requestType, proxy.getWorkRequestType());
             assertEquals(PostedRequestType.SEND, proxy.getPostType());
             proxyProvider.releaseWorkRequest(proxy);
@@ -136,12 +137,11 @@ public class QueuedProxyProviderTest {
             assertNotNull(expectedBuffer);
             assertNotNull(actualBuffer);
             assertEquals(expectedBuffer, actualBuffer);
-            assertNull(proxy.getEndpoint());
+            assertNull(proxy.getRdmaCommunicator());
             assertEquals(requestType, proxy.getWorkRequestType());
             assertEquals(PostedRequestType.SEND, proxy.getPostType());
         }
         proxyProvider.releaseWorkRequest(proxy);
     }
-
 
 }

@@ -1,7 +1,9 @@
 package jarg.rdmarpc.networking.dependencies.netrequests;
 
 import com.ibm.disni.verbs.IbvWC;
+import jarg.rdmarpc.networking.communicators.RdmaCommunicator;
 import jarg.rdmarpc.networking.communicators.impl.ActiveRdmaCommunicator;
+import jarg.rdmarpc.networking.dependencies.netbuffers.NetworkBufferManager;
 import jarg.rdmarpc.networking.dependencies.netrequests.types.WorkRequestType;
 
 import static jarg.rdmarpc.networking.dependencies.netrequests.types.WorkRequestType.*;
@@ -11,6 +13,30 @@ import static jarg.rdmarpc.networking.dependencies.netrequests.types.WorkRequest
  * while also enabling releasing and reusing Work Requests.
  */
 public interface WorkRequestProxyProvider {
+
+    /**
+     * Get the {@link NetworkBufferManager} that holds the network communication buffers
+     * that the Work Requests use.
+     * @return the {@link NetworkBufferManager} that holds the network communication buffers.
+     */
+    public NetworkBufferManager getBufferManager();
+
+    /**
+     * Set the {@link NetworkBufferManager} that holds the network communication buffers
+     * that the Work Requests use.
+     */
+    public void setBufferManager(NetworkBufferManager bufferManager);
+
+    /**
+     * Get the {@link RdmaCommunicator} that this provider belongs to.
+     * @return the {@link RdmaCommunicator} that this provider belongs to.
+     */
+    public RdmaCommunicator getCommunicator();
+
+    /**
+     * Set the {@link RdmaCommunicator} that this provider belongs to.
+     */
+    public void setCommunicator(RdmaCommunicator communicator);
 
     /**
      * <p>

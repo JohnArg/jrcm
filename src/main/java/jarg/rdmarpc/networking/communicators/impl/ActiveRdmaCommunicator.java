@@ -44,7 +44,7 @@ public class ActiveRdmaCommunicator extends RdmaActiveEndpoint implements RdmaCo
     private RdmaCommunicatorDependencies dependencies;  // kept for querying purposes
     private NetworkBufferManager bufferManager;
     private AbstractSVCManager svcManager;
-    private AbstractWorkRequestProxyProvider proxyProvider;
+    private WorkRequestProxyProvider proxyProvider;
     private AbstractWorkCompletionHandler workCompletionHandler;
 
     public ActiveRdmaCommunicator(RdmaActiveEndpointGroup<? extends ActiveRdmaCommunicator> group,
@@ -74,7 +74,7 @@ public class ActiveRdmaCommunicator extends RdmaActiveEndpoint implements RdmaCo
         svcManager.initializeSVCs();
         // pass proxy provider dependencies
         proxyProvider.setBufferManager(bufferManager);
-        proxyProvider.setEndpoint(this);
+        proxyProvider.setCommunicator(this);
         // pass proxy provider to work completion handler
         workCompletionHandler.setProxyProvider(proxyProvider);
     }

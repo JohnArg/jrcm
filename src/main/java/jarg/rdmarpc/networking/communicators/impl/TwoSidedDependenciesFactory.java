@@ -3,7 +3,7 @@ package jarg.rdmarpc.networking.communicators.impl;
 import jarg.rdmarpc.networking.dependencies.RdmaCommunicatorDependencies;
 import jarg.rdmarpc.networking.dependencies.netbuffers.impl.TwoSidedBufferManager;
 import jarg.rdmarpc.networking.dependencies.netrequests.AbstractWorkCompletionHandler;
-import jarg.rdmarpc.networking.dependencies.netrequests.AbstractWorkRequestProxyProvider;
+import jarg.rdmarpc.networking.dependencies.netrequests.WorkRequestProxyProvider;
 import jarg.rdmarpc.networking.dependencies.svc.impl.TwoSidedSVCManager;
 
 import java.util.function.Supplier;
@@ -16,11 +16,11 @@ public class TwoSidedDependenciesFactory implements Supplier<RdmaCommunicatorDep
 
     private int maxWorkRequests;
     private int maxBufferSize;
-    private Supplier<AbstractWorkRequestProxyProvider> proxyProviderSupplier;
+    private Supplier<WorkRequestProxyProvider> proxyProviderSupplier;
     private Supplier<AbstractWorkCompletionHandler> workCompletionHandlerSupplier;
 
     public TwoSidedDependenciesFactory(int maxWorkRequests, int maxBufferSize,
-                                       Supplier<AbstractWorkRequestProxyProvider> proxyProviderSupplier,
+                                       Supplier<WorkRequestProxyProvider> proxyProviderSupplier,
                                        Supplier<AbstractWorkCompletionHandler> workCompletionHandlerSupplier) {
         this.maxWorkRequests = maxWorkRequests;
         this.maxBufferSize = maxBufferSize;

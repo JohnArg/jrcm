@@ -5,7 +5,7 @@ import com.ibm.disni.RdmaEndpointFactory;
 import com.ibm.disni.verbs.RdmaCmId;
 import jarg.rdmarpc.networking.dependencies.RdmaCommunicatorDependencies;
 import jarg.rdmarpc.networking.dependencies.netrequests.AbstractWorkCompletionHandler;
-import jarg.rdmarpc.networking.dependencies.netrequests.AbstractWorkRequestProxyProvider;
+import jarg.rdmarpc.networking.dependencies.netrequests.WorkRequestProxyProvider;
 
 import java.io.IOException;
 import java.util.function.Supplier;
@@ -21,7 +21,7 @@ public class ActiveTwoSidedCommunicatorFactory implements RdmaEndpointFactory<Ac
 
     public ActiveTwoSidedCommunicatorFactory(RdmaActiveEndpointGroup<ActiveRdmaCommunicator> endpointGroup,
                                              int maxWorkRequests, int maxBufferSize,
-                                             Supplier<AbstractWorkRequestProxyProvider> proxyProviderSupplier,
+                                             Supplier<WorkRequestProxyProvider> proxyProviderSupplier,
                                              Supplier<AbstractWorkCompletionHandler> workCompletionHandlerSupplier) {
         this.endpointGroup = endpointGroup;
         dependenciesFactory = new TwoSidedDependenciesFactory(maxWorkRequests, maxBufferSize, proxyProviderSupplier,
