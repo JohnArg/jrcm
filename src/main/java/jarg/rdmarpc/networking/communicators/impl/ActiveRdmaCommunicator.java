@@ -107,7 +107,7 @@ public class ActiveRdmaCommunicator extends RdmaActiveEndpoint implements RdmaCo
 
     @Override
     public boolean postNetOperationToNIC(WorkRequestProxy workRequestProxy){
-        if(super.isClosed() || !(super.qp.isOpen())){
+        if(isShutDown()){
             return false;
         }
         return svcManager.executeSVC(workRequestProxy);
@@ -116,6 +116,11 @@ public class ActiveRdmaCommunicator extends RdmaActiveEndpoint implements RdmaCo
     @Override
     public WorkRequestProxyProvider getWorkRequestProxyProvider() {
         return proxyProvider;
+    }
+
+    @Override
+    public boolean isShutDown() {
+        return (isClosed() || !isConnected() || !getQp().isOpen());
     }
 
 

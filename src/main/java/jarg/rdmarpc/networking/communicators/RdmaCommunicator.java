@@ -20,4 +20,12 @@ public interface RdmaCommunicator {
      * endpoint uses.
      */
     WorkRequestProxyProvider getWorkRequestProxyProvider();
+
+    /**
+     * Checks if the communicator is in the process of being
+     * shut down.
+     * @return true if the communicator is in the process of a
+     * shutdown, false otherwise.
+     */
+    boolean isShutDown();
 }
