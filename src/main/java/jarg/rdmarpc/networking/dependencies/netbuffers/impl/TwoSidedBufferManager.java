@@ -41,7 +41,7 @@ public class TwoSidedBufferManager implements NetworkBufferManager {
          cache store, leading to more scalable performance. The following technique was borrowed
          from IBM's DaRPC, a general purpose RDMA RPC framework. */
         int bufferArrayBytes = maxBufferSize * maxWorkRequests * 2;
-        registeredMemoryBuffer = ByteBuffer.allocateDirect(bufferArrayBytes * 2);
+        registeredMemoryBuffer = ByteBuffer.allocateDirect(bufferArrayBytes);
         // give equal space to send and receive buffers
         int currentLimit = maxBufferSize;
         for(int i=0; i < maxWorkRequests; i++){

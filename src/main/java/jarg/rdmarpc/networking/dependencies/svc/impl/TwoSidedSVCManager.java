@@ -52,8 +52,8 @@ public class TwoSidedSVCManager extends AbstractSVCManager {
         for(int i=0; i < maxWorkRequests; i++){
             // We need to store an SVC for one request at a time, so
             // we need new lists each time
-            sendRequests = new ArrayList<>(maxWorkRequests);
-            recvRequests = new ArrayList<>(maxWorkRequests);
+            sendRequests = new ArrayList<>(1);
+            recvRequests = new ArrayList<>(1);
 
             twoSidedSendRequest = new TwoSidedSendRequest(registeredMemoryRegion);
             twoSidedSendRequest.prepareRequest();

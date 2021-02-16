@@ -106,7 +106,12 @@ public class QueuedProxyProvider implements WorkRequestProxyProvider{
         }
         if(workRequestProxy.getPostType().equals(PostedRequestType.SEND)) {
             synchronized (freePostSendWrIds){
-                workRequestProxy.getBuffer().clear();   // clear previous data
+                ByteBuffer buffer = workRequestProxy.getBuffer();
+                // must make this check to avoid errors with inconsistent WC opcodes
+                // during endpoint shutdown
+                if(buffer != null){
+                    buffer.clear();
+                }
                 freePostSendWrIds.enqueue(workRequestProxy.getId());
                 // if the queue was empty, notify any blocked threads
                 if(freePostSendWrIds.size() == 1){
@@ -114,9 +119,14 @@ public class QueuedProxyProvider implements WorkRequestProxyProvider{
                 }
             }
         }else if (workRequestProxy.getPostType().equals(PostedRequestType.RECEIVE)) {
+            ByteBuffer buffer = workRequestProxy.getBuffer();
+            // must make this check to avoid errors with inconsistent WC opcodes
+            // during endpoint shutdown
+            if(buffer != null){
+                buffer.clear();
+            }
             // now that this WR id is free for reuse, we can repost
             // that 'receive' request immediately to accept new data
-            workRequestProxy.getBuffer().clear();   // clear previous data
             rdmaCommunicator.postNetOperationToNIC(workRequestProxy);
         }
     }
