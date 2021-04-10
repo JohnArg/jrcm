@@ -4,7 +4,13 @@ import jarg.jrcm.networking.dependencies.netrequests.WorkRequestProxy;
 import jarg.jrcm.networking.dependencies.netrequests.WorkRequestProxyProvider;
 
 /**
- * Posts networking operations to the Network Interface Controller.
+ * Used to communicate with RDMA, by posting RDMA
+ * networking operations to the Network Interface Controller.
+ * It reads the necessary information about the networking operation
+ * to perform from a {@link WorkRequestProxy}.
+ * Additionally, it allows the user application to access to a
+ * {@link WorkRequestProxyProvider}, which can supply the application
+ * with WorkRequestProxies to use during communications.
  */
 public interface RdmaCommunicator {
 

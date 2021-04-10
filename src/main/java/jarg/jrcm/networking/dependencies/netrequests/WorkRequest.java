@@ -7,7 +7,10 @@ import java.util.LinkedList;
 
 /**
  * Abstract class representing an RDMA Work Request (WR), that will be
- * sent to the Network Card and will be executed by it.
+ * posted to the RDMA NIC and will be executed by it. WRs contain
+ * information that describe to the RDMA NIC the RDMA operation it has to execute.
+ * Implementations of this class are meant to be used by jRCM internally only.
+ * Applications can use {@link WorkRequestProxy} objects instead.
  */
 public abstract class WorkRequest{
     private IbvMr requestBufferMR;       // the memory region registered to the NIC

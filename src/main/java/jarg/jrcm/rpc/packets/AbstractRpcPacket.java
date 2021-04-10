@@ -6,6 +6,9 @@ import jarg.jrcm.rpc.serialization.RpcDataSerializer;
 
 /**
  * Abstract class for packets that encapsulate RPC messages.
+ * An AbstractRpcPacket is associated with the {@link WorkRequestProxy}
+ * that will be used by the application to transmit or read the AbstractRpcPacket's
+ * data.
  */
 public abstract class AbstractRpcPacket {
 
@@ -16,16 +19,19 @@ public abstract class AbstractRpcPacket {
     }
 
     /**
-     * Writes the packet's information to the network request's buffer.
-     * Requires a payload serializer to be provided.
-     * @param payloadSerializer will serialize payload data to the network request's buffer.
+     * Serializes the packet's data to the ByteBuffer of the WorkRequestProxy associated with
+     * this packet.
+     * Requires an {@link RpcDataSerializer} to serialize the payload.
+     * @param payloadSerializer will serialize the packet's data to the associated WorkRequestProxy's
+     *                          ByteBuffer.
      * @throws RpcDataSerializationException thrown if there is an error during serialization.
      */
     public abstract void writeToWorkRequestBuffer(RpcDataSerializer payloadSerializer)
             throws RpcDataSerializationException;
 
     /**
-     * Reads the packet header data from the network request buffer into this packet.
+     * Deserializes the packet header data from the the ByteBuffer of the WorkRequestProxy associated with
+     * this packet.
      * @throws RpcDataSerializationException thrown if there is an error during deserialization.
      */
     public abstract void readHeadersFromWorkRequestBuffer()

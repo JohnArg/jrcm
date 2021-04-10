@@ -4,13 +4,18 @@ import com.ibm.disni.verbs.IbvWC;
 import jarg.jrcm.networking.communicators.RdmaCommunicator;
 import jarg.jrcm.networking.communicators.impl.ActiveRdmaCommunicator;
 import jarg.jrcm.networking.dependencies.netbuffers.NetworkBufferManager;
+import jarg.jrcm.networking.dependencies.netrequests.types.PostedRequestType;
 import jarg.jrcm.networking.dependencies.netrequests.types.WorkRequestType;
 
 import static jarg.jrcm.networking.dependencies.netrequests.types.WorkRequestType.*;
 
 /**
- * Provides {@link WorkRequestProxy WorkRequestProxies} to applications,
- * while also enabling releasing and reusing Work Requests.
+ * Provides available {@link WorkRequestProxy WorkRequestProxies} to applications.
+ * It also allows releasing WorkRequestProxies, so that they can be reused.
+ * Finally, it can "translate" a Work Completion Event notification from the Network Card
+ * about an RDMA Work Request to a WorkRequestProxy that represents
+ * this Work Request. Thus applications need only use WorkRequestProxies to transfer
+ * data or to handle network notifications.
  */
 public interface WorkRequestProxyProvider {
 
@@ -41,19 +46,13 @@ public interface WorkRequestProxyProvider {
     /**
      * <p>
      * Applications need to call this before posting a postSend-type
-     * Work Request to the NIC.
-     * It will look for an available Work Request (WR) id for postSend-type
+     * Work Request to the NIC (all one-sided RDMA operations and two-sided
+     * SEND).
+     * It looks for an available Work Request (WR) id for postSend-type
      * operations and if it finds one, it returns a {@link WorkRequestProxy}
      * that contains information about the WR.
-     * If it doesn't find an available WR id, it will block until there is one.
-     * </p>
-     * <p>
-     * Once a {@link WorkRequestProxy} is returned, the application can
-     * use it to access the buffer associated with a WR and write data to
-     * be sent over the network. Afterwards, the application needs to
-     * pass the {@link WorkRequestProxy} back to the
-     * {@link ActiveRdmaCommunicator RdmaRpcEndpoint},
-     * in order for the latter to transmit the written data.
+     * If it doesn't find an available WR id, it will block until there is one
+     * (e.g. after releasing a WorkRequestProxy).
      * </p>
      *
      * @param requestType specifies the type of request.
@@ -65,21 +64,8 @@ public interface WorkRequestProxyProvider {
 
     /**
      * <p>
-     * Applications need to call this before posting a postSend-type
-     * Work Request to the NIC.
-     * It will look for an available Work Request (WR) id for postSend-type
-     * operations and if it finds one, it returns a {@link WorkRequestProxy}
-     * that contains information about the WR.
-     * If it doesn't find an available WR id, it will return null
-     * and will not block.
-     * </p>
-     * <p>
-     * Once a {@link WorkRequestProxy} is returned, the application can
-     * use it to access the buffer associated with a WR and write data to
-     * be sent over the network. Afterwards, the application needs to
-     * pass the {@link WorkRequestProxy} back to the
-     * {@link ActiveRdmaCommunicator RdmaRpcEndpoint},
-     * in order for the latter to transmit the written data.
+     * This method is like {@link WorkRequestProxyProvider#getPostSendRequestBlocking(WorkRequestType)},
+     * but if it doesn't find an available WR id, it will return null and will not block.
      * </p>
      *
      * @param requestType specifies the type of request.
@@ -90,14 +76,12 @@ public interface WorkRequestProxyProvider {
      */
     WorkRequestProxy getPostSendRequestNow(WorkRequestType requestType);
 
-
     /* Unlike postSend-type requests, which are requests to send data, postRecv-type requests
     * don't need to be posted by applications explicitly.
     * They can be all posted at the beginning of the application and re-posted after their use
-    * automatically. The applications need only specify that they do not longer need a
+    * automatically. Applications need only specify that they do not longer need a
     * postRecv request (have finished using the received data).
     * Therefore, there's no need to use methods like the ones above for postRecv requests. */
-
 
     /**
      * It makes a Work Request (WR) available for reuse again.
@@ -105,13 +89,12 @@ public interface WorkRequestProxyProvider {
      */
     void releaseWorkRequest(WorkRequestProxy workRequestProxy);
 
-
     /**
-     * Constructs a {@link WorkRequestProxy} by using the information inside
-     * a {@link IbvWC Work Completion Event}.
+     * Retrieves a {@link WorkRequestProxy} representing the Work Request
+     * of a {@link IbvWC Work Completion Event}.
      * It should ONLY be used when handling completion events and
      * want to get a proxy object that represents the Work Request for
-     * which the completion event was fired.
+     * which the completion event was triggered.
      * @return the proxy object representing the Work Request for which the
      * completion event fired.
      */

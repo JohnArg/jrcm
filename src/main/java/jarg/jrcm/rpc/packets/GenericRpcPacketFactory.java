@@ -5,18 +5,18 @@ import jarg.jrcm.networking.dependencies.netrequests.WorkRequestProxy;
 /**
  * A generic factory for RPC packets.
  * @param <P> the type of the packet.
- * @param <M> the message type (e.g. request, response, error)
- * @param <O> the type of the operation to perform - identifies RPC function from the API
+ * @param <M> the type of the message type (could be request, response or error)
+ * @param <O> the type of the RPC method that the packet is created for.
  */
 @FunctionalInterface
 public interface GenericRpcPacketFactory <P, M, O>{
 
     /**
      * Generates an RPC packet.
-     * @param workRequestProxy associates a packet with a Work Request to the NIC and hence, with a
+     * @param workRequestProxy associates a packet with a {@link WorkRequestProxy} and hence, with a
      *                         network buffer that will contain its data.
-     * @param messageType the type of the message (e.g. request, response, error).
-     * @param operationType what RPC function is this packet for?
+     * @param messageType the type of the message (could be request, response or error).
+     * @param operationType determines the type of the RPC method that the packet is created for.
      * @return the generated RPC packet.
      */
     P generatePacket(WorkRequestProxy workRequestProxy, M messageType, O operationType);

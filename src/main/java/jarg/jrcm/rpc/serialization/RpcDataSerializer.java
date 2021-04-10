@@ -3,19 +3,19 @@ package jarg.jrcm.rpc.serialization;
 import jarg.jrcm.rpc.exception.RpcDataSerializationException;
 
 /**
- * (De)Serializes data that will be sent/received.
+ * Serializes data to be sent or deserializes received data.
  */
 public interface RpcDataSerializer {
 
     /**
-     * Serialize this object to the associated Work Request's data buffer.
+     * Serializes this object to a ByteBuffer.
      * @throws RpcDataSerializationException if the data could not be serialized
      * successfully.
      */
     void writeToWorkRequestBuffer() throws RpcDataSerializationException;
 
     /**
-     * Deserialize this object from the associated Work Request's data buffer.
+     * Deserializes this object from a ByteBuffer.
      * @throws RpcDataSerializationException if the data could not be deserialized
      * successfully.
      */

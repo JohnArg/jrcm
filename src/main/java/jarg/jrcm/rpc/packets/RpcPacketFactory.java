@@ -13,10 +13,10 @@ public interface RpcPacketFactory<P extends AbstractRpcPacket> {
 
     /**
      * Generates an RPC packet.
-     * @param workRequestProxy associates a packet with a Work Request to the NIC and hence, with a
-     *                         network buffer that will contain its data.
-     * @param messageType the type of the message (e.g. request, response, error).
-     * @param operationType what RPC function is this packet for?
+     * @param workRequestProxy associates a packet with a {@link WorkRequestProxy} and hence, with a
+     *                        network buffer that will contain its data.
+     * @param messageType the type of the message (e.g. request, response or error - see {@link RpcMessageType}).
+     * @param operationType determines the type of the RPC method that the packet is created for.
      * @return the generated RPC packet.
      */
     P generatePacket(WorkRequestProxy workRequestProxy, byte messageType, int operationType);

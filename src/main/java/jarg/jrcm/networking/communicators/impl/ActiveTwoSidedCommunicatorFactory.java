@@ -12,7 +12,9 @@ import java.util.function.Supplier;
 
 /**
  * A Factory of {@link ActiveRdmaCommunicator ActiveRdmaCommunicators} that use <i>two-sided</i> RDMA
- * operations.
+ * operations. It gives each ActiveRdmaCommunicator each own set of constructor dependencies
+ * (see {@link ActiveRdmaCommunicator}) . For ActiveRdmaCommunicators that wish to share the same dependecies
+ * a different factory must be used.
  */
 public class ActiveTwoSidedCommunicatorFactory implements RdmaEndpointFactory<ActiveRdmaCommunicator> {
 

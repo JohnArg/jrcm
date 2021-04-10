@@ -36,8 +36,7 @@ public class TwoSidedBufferManager implements NetworkBufferManager {
          the Network Card (NIC). This saves space in Memory Translation and Memory Protection
          tables maintained in the Network Card, which are cached by the NIC.
          So the fewer the entries of the aforementioned tables, the more data can the NIC's
-         cache store, leading to more scalable performance. The following technique was borrowed
-         from IBM's DaRPC, a general purpose RDMA RPC framework. */
+         cache store, leading to more scalable performance. */
         int bufferArrayBytes = maxBufferSize * maxWorkRequests * 2;
         registeredMemoryBuffer = ByteBuffer.allocateDirect(bufferArrayBytes);
         // give equal space to send and receive buffers

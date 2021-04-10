@@ -15,27 +15,32 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
- * This {@link RdmaCommunicator} establishes a channel of RDMA communications with remote machines.
- * It the following jobs:
+ * This {@link RdmaCommunicator} establishes a channel of RDMA communications with other servers.
+ * It has the following jobs:
  * <ul>
  *     <li>It performs all necessary preparations before staring RDMA communications,
  *          including memory allocations, memory registration to the Network Interface Controller
- *          (NIC) and SVC creation <i>(see IBM's jverbs)</i>.
+ *          (NIC) and SVC creation <i>(see IBM's jverbs)</i>. To do all this, the communicator is
+ *          passed an {@link RdmaCommunicatorDependencies} object in the constructor. This object
+ *          encapsulates other objects that take care of preparing resources for RDMA communications
+ *          or determine how certain tasks will be performed during communications.
+ *          These are called "dependencies" of the ActiveRdmaCommunicator, since the communicator
+ *          depends on these objects to be able to perform RDMA communications. The dependencies
+ *          are interfaces or abstract classes, allowing different implementations ("strategies") to
+ *          be passed to the communicator, without having to change the communicator's code.
+ *          This was important for allowing more flexibility in how RDMA communications will be performed,
+ *          which was one of the main goals of jRCM.
  *     </li>
- *     <li>It transmits and receives data using the RDMA technology.</li>
- *     <li>In order to transmit and receive data, RDMA Work Requests (WRs) are sent to the
- *          NIC. The communicator creates, stores, submits to the NIC and manages the lifecycle
- *          of such WRs. Therefore, it also has to be able to identify the WRs and associate
- *          them with events, data buffers and SVCs.
+ *     <li>It transmits and receives data using the RDMA technology. Applications can pass it
+ *     {@link WorkRequestProxy} objects that contain all the information needed
+ *     about the RDMA operation to post to the RDMA NIC.
+ *     </li>
+ *     <li> This type of {@link RdmaCommunicator} is also an {@link RdmaActiveEndpoint}, which means that
+ *         it receives notifications about RDMA Work Request Completion Events through a
+ *         {@link RdmaActiveEndpointGroup}. Then the communicator can decide what to do with these notifications
+ *         by invoking a {@link WorkCompletionHandler} strategy.
  *     </li>
  * </ul>
- *<p>
- * This type of {@link RdmaCommunicator} is also an {@link RdmaActiveEndpoint}, which means that
- * it receives notifications about RDMA Work Request Completion Events through a
- * {@link RdmaActiveEndpointGroup}.
- * Then the communicator can decide what to do with these notifications by invoking a
- * {@link WorkCompletionHandler} strategy.
- * </p>
  */
 public class ActiveRdmaCommunicator extends RdmaActiveEndpoint implements RdmaCommunicator {
 

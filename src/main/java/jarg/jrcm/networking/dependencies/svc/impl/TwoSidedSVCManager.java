@@ -20,7 +20,7 @@ import static jarg.jrcm.networking.dependencies.netrequests.types.WorkRequestTyp
 
 /**
  * Manages SVCs <i>(see IBM's jVerbs => SVC)</i> for
- * <i>two-sided</i> RDMA operations.
+ * <i>two-sided SEND/RECV</i> RDMA operations.
  */
 public class TwoSidedSVCManager extends AbstractSVCManager {
     private static final Logger logger = LoggerFactory.getLogger(TwoSidedSVCManager.class);

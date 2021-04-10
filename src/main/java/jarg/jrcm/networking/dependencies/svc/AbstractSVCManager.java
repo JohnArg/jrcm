@@ -5,7 +5,7 @@ import com.ibm.disni.verbs.IbvMr;
 import jarg.jrcm.networking.dependencies.netbuffers.NetworkBufferManager;
 
 /**
- * Contains common fields and methods for classes implementing {@link SVCManager}.
+ * Contains some fields and methods that can be useful for classes implementing {@link SVCManager}.
  */
 public abstract class AbstractSVCManager implements SVCManager {
 

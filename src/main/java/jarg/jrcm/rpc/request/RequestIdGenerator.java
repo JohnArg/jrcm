@@ -1,7 +1,7 @@
 package jarg.jrcm.rpc.request;
 
 /**
- * Generates unique request Ids, in order to associate requests
+ * Generates unique request ids, in order to associate requests
  * with responses.
  */
 @FunctionalInterface

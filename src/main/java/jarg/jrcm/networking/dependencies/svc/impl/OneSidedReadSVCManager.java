@@ -20,7 +20,7 @@ import static jarg.jrcm.networking.dependencies.netrequests.impl.postsend.OneSid
 
 /**
  * Manages SVCs <i>(see IBM's jVerbs => SVC)</i> for
- * <i>one-sided READ</i> RDMA operations.
+ * <i>one-sided RDMA READ</i> operations.
  */
 public class OneSidedReadSVCManager extends AbstractSVCManager {
 

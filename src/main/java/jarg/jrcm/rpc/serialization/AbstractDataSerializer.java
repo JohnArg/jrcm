@@ -4,8 +4,8 @@ import jarg.jrcm.networking.dependencies.netrequests.WorkRequestProxy;
 import jarg.jrcm.rpc.exception.RpcDataSerializationException;
 
 /**
- * Abstract class that implements {@link RpcDataSerializer}, but only handles
- * getting and setting a {@link WorkRequestProxy}.
+ * Abstract class that associates a {@link WorkRequestProxy} with an {@link RpcDataSerializer}.
+ * The WorkRequestProxy's ByteBuffer should be used for data serialization and deserialization.
  */
 public abstract class AbstractDataSerializer implements RpcDataSerializer{
 

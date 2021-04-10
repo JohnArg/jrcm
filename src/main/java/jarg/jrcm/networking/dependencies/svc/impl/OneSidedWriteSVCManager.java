@@ -20,7 +20,7 @@ import static jarg.jrcm.networking.dependencies.netrequests.impl.postsend.OneSid
 
 /**
  * Manages SVCs <i>(see IBM's jVerbs => SVC)</i> for
- * <i>one-sided WRITE</i> RDMA operations.
+ * <i>one-sided RDMA WRITE</i> operations.
  */
 public class OneSidedWriteSVCManager extends AbstractSVCManager {
     private static final Logger logger = LoggerFactory.getLogger(OneSidedWriteSVCManager.class);

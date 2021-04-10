@@ -5,7 +5,7 @@ import com.ibm.disni.verbs.IbvRecvWR;
 import jarg.jrcm.networking.dependencies.netrequests.WorkRequest;
 
 /**
- * A wrapper for an RDMA Two-Sided Receive.
+ * A wrapper for an RDMA Two-Sided RECV (Receive).
  */
 public class TwoSidedRecvRequest extends WorkRequest {
     private IbvRecvWR recvWR;

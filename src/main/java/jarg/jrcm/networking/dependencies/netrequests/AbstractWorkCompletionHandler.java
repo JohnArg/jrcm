@@ -1,7 +1,12 @@
 package jarg.jrcm.networking.dependencies.netrequests;
 
 /**
- * Abstract class that defines dependencies needed to implement a {@link WorkCompletionHandler}.
+ * An abstract {@link WorkCompletionHandler} that is associated with a {@link WorkRequestProxyProvider}.
+ * A WorkRequestProxyProvider can be used inside a WorkCompletionHandler to "translate" a Work Completion
+ * Event notification from the network to a {@link WorkRequestProxy}. Such a
+ * WorkRequestProxy represents the RDMA Work Request that completed either successfully or
+ * with errors. In case of a successful message reception with RDMA RECV, the WorkRequestProxy
+ * also contains the ByteBuffer with the received message.
  */
 public abstract  class AbstractWorkCompletionHandler implements WorkCompletionHandler{
 
