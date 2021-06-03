@@ -197,7 +197,7 @@ the code.
 
 ### License <a name="jrcm-license"></a>
 
-    Copyright [2021] [John Argyroulis]
+    Copyright 2021 John Argyroulis
     
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
