@@ -109,6 +109,9 @@ RDMA connections, which can be passed different implementations
 of the jRCM components presented above 
 (<i>Strategy Design Pattern</i>).
 
+Besides the main jRCM components which are in the <i>networking</i>
+package, there are optional classes and interfaces in the 
+<i>rpc</i> package that can aid in building RDMA RPCs with jRCM.
 
 ### How To Use jRCM <a name="jrcm-usage"></a>
 
