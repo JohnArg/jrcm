@@ -197,6 +197,11 @@ the code.
 
 ### License <a name="jrcm-license"></a>
 
+jRCM is licensed under the 
+[Apache Software License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.html).
+
+See [LICENSE](LICENSE).
+
     Copyright 2021 John Argyroulis
     
     Licensed under the Apache License, Version 2.0 (the "License");
