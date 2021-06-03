@@ -8,6 +8,7 @@
 5. [How To Use jRCM](#jrcm-usage)
 6. [Code Examples](#jrcm-examples)
 7. [Extending jRCM](#jrcm-extension)
+8. [License](#jrcm-license)
 
 ### What Is jRCM <a name="what-is-jrcm"></a>
 
@@ -193,3 +194,19 @@ ways, in case the default implementations do not meet the needs of the
 user application. Because of the use of interfaces, developers may choose
 to implement only certain components without having to change the rest of
 the code.
+
+### License <a name="jrcm-license"></a>
+
+    Copyright [2021] [John Argyroulis]
+    
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    
+        http://www.apache.org/licenses/LICENSE-2.0
+    
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
