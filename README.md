@@ -182,7 +182,8 @@ into DiSNI's documentation.
 
 ### Code Examples <a name="jrcm-examples"></a>
 
-
+Code examples of using jRCM can be found 
+[here](https://github.com/JohnArg/jrcm_examples) 
 
 
 ### Extending jRCM <a name="jrcm-extension"></a>
